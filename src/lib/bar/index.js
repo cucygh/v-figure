@@ -53,7 +53,6 @@ var Bar = function() {
      */
     this.getChildWidth = function() {
         var gapRadio = self.gapRadio,
-            box = self.getBox(),
             c = self.config, //配置参数
             reverse = c.reverse, //坐标系是否反转
             ceilWidth = c.ceilWidth, //刻度的单元格
@@ -87,20 +86,19 @@ var Bar = function() {
         x += index * (width + gap) + gap;
         y = c.origin[1] - height - c.strokeAxis['stroke-width'];
         if (reverse) {
-            x = c.origin[0] - c.strokeAxis['stroke-width'];
+            x = c.origin[0] + c.strokeAxis['stroke-width'];
             y = c.origin[1] - subIndex * c.ceilWidth;
-            y -= index * (width + gap) + gap;
+            y -= index * (width + gap)+gap;
         }
         return {
             x: x,
             y: y,
-            w: width,
-            h: height,
+            w: reverse?height:width,
+            h: reverse?width:height,
             y0: y0,
             x0: x0,
-            index: index,
             subIndex: subIndex,
-            value
+            value:value
         }
     }
 };

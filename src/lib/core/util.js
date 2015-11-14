@@ -36,21 +36,22 @@ var nativeForEach = ArrayProto.forEach,
  * @param series 数值类型的二维数组
  * @return r {Array}
  */
-_.AxisAuto = function(series) {
+_.AxisAuto = function (series) {
         var r = [];
         if (series && series instanceof Array && series.length) {
-            var d = series[0].length,
+            var d = series[0].data.length,
                 max = 0,
                 key, tmp;
             for (key in series) {
-                max = Math.max(Math.max.apply(null, series[key]), max);
+                max = Math.max(Math.max.apply(null, series[key].data), max);
             }
             if (d && max > 0) {
                 d = tmp = Math.ceil(max / d);
-                while (d < max) {
-                    r.push(d);
+                r.push(d);
+                do {
                     d += tmp;
-                }
+                    r.push(d);
+                } while (d < max)
             }
         }
         return r
@@ -61,7 +62,7 @@ _.AxisAuto = function(series) {
      * @param   end   {Array}   eg:[100,30]
      * @return r {String}
      */
-_.line = function(start, end) {
+_.line = function (start, end) {
         var r = ['M', start.join(',')];
         if (start[0] == end[0]) {
             r.push('V' + end[1]);
@@ -77,7 +78,7 @@ _.line = function(start, end) {
      * @param
      * @return result {Boolean}
      */
-_.isObject = function(obj) {
+_.isObject = function (obj) {
     return obj === Object(obj);
 };
 /**
@@ -85,7 +86,7 @@ _.isObject = function(obj) {
  * @param
  * @return result {Boolean}
  */
-_.keys = function(obj) {
+_.keys = function (obj) {
     if (!_.isObject(obj)) return [];
     if (nativeKeys) return nativeKeys(obj);
     var keys = [];
@@ -98,7 +99,7 @@ _.keys = function(obj) {
  * @param
  * @return result {Boolean}
  */
-_.each = _.forEach = function(obj, iterator, context) {
+_.each = _.forEach = function (obj, iterator, context) {
     if (obj == null) return obj;
     if (nativeForEach && obj.forEach === nativeForEach) {
         obj.forEach(iterator, context);
@@ -114,17 +115,16 @@ _.each = _.forEach = function(obj, iterator, context) {
     }
     return obj;
 };
-
 /**
  * @description 组数过滤
  * @param
  * @return result {Boolean}
  */
-_.filter = function(obj, predicate, context) {
+_.filter = function (obj, predicate, context) {
     var results = [];
     if (obj == null) return results;
     if (nativeFilter && obj.filter === nativeFilter) return obj.filter(predicate, context);
-    _.each(obj, function(value, index, list) {
+    _.each(obj, function (value, index, list) {
         if (predicate.call(context, value, index, list)) results.push(value);
     });
     return results;
@@ -134,8 +134,8 @@ _.filter = function(obj, predicate, context) {
  * @param
  * @return result {Boolean}
  */
-_.extend = function(obj) {
-    _.each(slice.call(arguments, 1), function(source) {
+_.extend = function (obj) {
+    _.each(slice.call(arguments, 1), function (source) {
         if (source) {
             for (var prop in source) {
                 obj[prop] = source[prop];
@@ -149,9 +149,9 @@ _.extend = function(obj) {
  * @param
  * @return result {Number}
  */
-_.strLength = function() {
+_.strLength = function () {
         var len = 0;
-        _.each(arguments, function(item) {
+        _.each(arguments, function (item) {
             len += item.replace(/[^ -~]/g, '**').length
         });
         return len
@@ -161,7 +161,7 @@ _.strLength = function() {
      * @param
      * @return result {String}
      */
-_.strRandom = function() {
+_.strRandom = function () {
         return Math.random().toString(16).slice(2)
     }
     /**
@@ -169,8 +169,8 @@ _.strRandom = function() {
      * @param
      * @return result {Boolean}
      */
-_.requestAnimFrame = (function() {
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) {
+_.requestAnimFrame = (function () {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
         window.setTimeout(callback, 1000 / 60);
     };
 })();

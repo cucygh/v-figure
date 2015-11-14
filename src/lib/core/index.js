@@ -13,7 +13,7 @@ var config = require('../config/index');
 // 辅助类
 var _ = require('./util');
 // 构造类
-var Factory = function() {
+var Factory = function () {
         this.config = config;
         this._ = _;
     },
@@ -24,8 +24,8 @@ var Factory = function() {
  * @param value  维度显示
  * @return result {Boolean}
  */
-Proto.skip = function(name, value) {
-    _.each(this.config.series, function(item) {
+Proto.skip = function (name, value) {
+    _.each(this.config.series, function (item) {
         if (item.name == name) {
             item.skip = !value;
         }
@@ -38,14 +38,14 @@ Proto.skip = function(name, value) {
  * @param
  * @return result {Boolean}
  */
-Proto.getSeriesLength = function() {
+Proto.getSeriesLength = function () {
     var i = 0;
-    _.each(this.config.series, function(item) {
+    _.each(this.config.series, function (item) {
         if (!item.skip) {
-            item.index=i;
+            item.index = i;
             i++;
-        }else{
-            item.index=0;
+        } else {
+            item.index = 0;
         }
     });
     this.config.seriesLength = i;
@@ -55,7 +55,7 @@ Proto.getSeriesLength = function() {
  * @param
  * @return result {Undefined}
  */
-Proto.check = function() {
+Proto.check = function () {
     var c = this.config;
     var yAxis = c.yAxis,
         xAxis = c.xAxis,
@@ -63,26 +63,28 @@ Proto.check = function() {
     // 计算数据维度的有效长度
     Proto.getSeriesLength.call(this);
     // 标识数据项
-    _.each(c.series, function(item) {
+    _.each(c.series, function (item) {
         item.name = item.name || _.strRandom()
     });
     // 计算坐标原点
     c.origin = [c.padding * 1, c.height - c.padding];
     // 计算实际坐标原点
     c.y0 = c.origin[1] - c.strokeAxis['stroke-width']; //实例的起始纵坐标
-    c.x0 = c.origin[0] - c.strokeAxis['stroke-width']; //实例的起始横坐标
+    c.x0 = c.origin[0] + c.strokeAxis['stroke-width']; //实例的起始横坐标
     // 坐标系是否反转
     if (c.reverse) {
         // 检测横坐标是否已配置，如果没有自动生成
         if (!xAxis.length && c.series) {
             xAxis = _.AxisAuto(c.series);
         } else {
-            xAxis = [];
+            xAxis = xAxis || [];
         }
+        // 自动计算坐标轴
+        c.xAxis = xAxis;
         // 计算坐标的最大值
         c.Max = Math.max.apply(null, xAxis);
         // 计算刻度单元格
-        c.ceilWidth = box.width / yAxis.length;
+        c.ceilWidth = box.height / yAxis.length;
     } else {
         // 检测纵坐标是否已配置，如果没有自动生成
         if (!yAxis.length && c.series) {
@@ -90,6 +92,8 @@ Proto.check = function() {
         } else {
             yAxis = yAxis || [];
         }
+        // 自动计算坐标轴
+        c.yAxis = yAxis;
         // 计算坐标的最大值
         c.Max = Math.max.apply(null, yAxis);
         // 计算刻度单元格
@@ -97,19 +101,11 @@ Proto.check = function() {
     }
 };
 /**
- * @description 重新渲染画布
- * @param
- * @return result {Boolean}
- */
-Proto.refresh = function() {
-    this.render && this.render();
-};
-/**
  * @description 设置配置参数
  * @param
  * @return result {Undefined}
  */
-Proto.setOptions = function(options) {
+Proto.setOptions = function (options) {
     _.extend(this.config, options);
     Proto.check.call(this);
 };
@@ -119,7 +115,7 @@ Proto.setOptions = function(options) {
  *           - width {Number}
  *           - height {Number}
  */
-Proto.getBox = function() {
+Proto.getBox = function () {
     var c = this.config;
     if (!c.Box) {
         c.Box = {
@@ -134,7 +130,7 @@ Proto.getBox = function() {
  * @param
  * @return result {String}
  */
-Proto.getAxis = function() {
+Proto.getAxis = function () {
     var line = _.line,
         c = this.config,
         origin = c.origin,
@@ -150,7 +146,7 @@ Proto.getAxis = function() {
  * @param
  * @return result {Array}
  */
-Proto.getTick = function() {
+Proto.getTick = function () {
     var ticks = [],
         texts = [],
         c = this.config,
@@ -163,6 +159,7 @@ Proto.getTick = function() {
         h = box.height / yAxisLen,
         origin = [c.padding * 1, c.height - c.padding],
         line = _.line,
+        reverse = c.reverse,
         startX,
         startY,
         endX,
@@ -179,7 +176,7 @@ Proto.getTick = function() {
             break;
         }
         texts.push({
-            x: startX + w / 2,
+            x: reverse ? (startX + w) : (startX + w / 2),
             y: startY * 1 + 10,
             text: xAxis[i]
         });
@@ -189,7 +186,7 @@ Proto.getTick = function() {
         startX = origin[0];
         texts.push({
             x: startX - 5,
-            y: startY,
+            y: reverse?startY+h/2:startY,
             text: yAxis[i - 1],
             style: {
                 'text-anchor': 'end'
@@ -206,7 +203,7 @@ Proto.getTick = function() {
  * @param
  * @return result {String}
  */
-Proto.getGrid = function() {
+Proto.getGrid = function () {
     var c = this.config,
         line = _.line,
         grid = [],
@@ -250,7 +247,7 @@ Proto.getGrid = function() {
  *          - y {Number}
  *          - text {String}
  */
-Proto.getTitle = function() {
+Proto.getTitle = function () {
     var c = this.config,
         title = c.title,
         titles = [],
@@ -285,7 +282,7 @@ Proto.getTitle = function() {
  * @param
  * @return result {Boolean}
  */
-Proto.getLegend = function() {
+Proto.getLegend = function () {
     var c = this.config,
         series = c.series,
         legend = c.legend,
@@ -297,7 +294,7 @@ Proto.getLegend = function() {
         x,
         y;
     if (legend && series.length) {
-        _.each(series, function(item) {
+        _.each(series, function (item) {
             if (item.legend) {
                 len += _.strLength(item.legend);
                 i++;
@@ -307,7 +304,7 @@ Proto.getLegend = function() {
     //  计算起始字符的坐标
     x = c.width / 2 - (len * 5 + i * (w + 5)) / 2;
     y = c.padding + c.title.padding[1];
-    _.each(series, function(item) {
+    _.each(series, function (item) {
         legends.push({
             x: x,
             y: y,
