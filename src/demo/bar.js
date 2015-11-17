@@ -1,7 +1,5 @@
 /* [export] */
-
 var stdBar = require('../lib/bar/stdBar');
-
 var m = new stdBar({
     id: 'canvas',
     width: 800,
@@ -22,9 +20,7 @@ var m = new stdBar({
             }
         }
     },
-    xAxis: ['2001', '2002', '2003', '2004', '2005', '2006', '2007',
-        '2008', '2009', '2010'
-    ],
+    xAxis: ['2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010'],
     series: [{
         data: [102, 10, 10, 20, 80, 120, 10, 34, 23, 11],
         style: {
@@ -73,10 +69,9 @@ var m = new stdBar({
     animation: {
         duration: 1000,
         type: 'bounce',
-        inOut:500,
+        inOut: 500,
         open: true
     },
     legend: true
 });
-
 m.render();

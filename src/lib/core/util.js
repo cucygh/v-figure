@@ -37,47 +37,65 @@ var nativeForEach = ArrayProto.forEach,
  * @return r {Array}
  */
 _.AxisAuto = function (series) {
-        var r = [];
-        if (series && series instanceof Array && series.length) {
-            var d = series[0].data.length,
-                max = 0,
-                key, tmp;
-            for (key in series) {
-                max = Math.max(Math.max.apply(null, series[key].data), max);
-            }
-            if (d && max > 0) {
-                d = tmp = Math.ceil(max / d);
+    var r = [];
+    if (series && series instanceof Array && series.length) {
+        var d = series[0].data.length,
+            max = 0,
+            key, tmp;
+        for (key in series) {
+            max = Math.max(Math.max.apply(null, series[key].data), max);
+        }
+        if (d && max > 0) {
+            d = tmp = Math.ceil(max / d);
+            r.push(d);
+            do {
+                d += tmp;
                 r.push(d);
-                do {
-                    d += tmp;
-                    r.push(d);
-                } while (d < max)
-            }
+            } while (d < max)
         }
-        return r
     }
-    /**
-     * @description 按起始点计算直线的路径
-     * @param   start {Array}   eg:[50,50]
-     * @param   end   {Array}   eg:[100,30]
-     * @return r {String}
-     */
+    return r
+};
+/**
+ * @description 按起始点计算直线的路径
+ * @param   start {Array}   eg:[50,50]
+ * @param   end   {Array}   eg:[100,30]
+ * @return r {String}
+ */
 _.line = function (start, end) {
-        var r = ['M', start.join(',')];
-        if (start[0] == end[0]) {
-            r.push('V' + end[1]);
-        } else if (start[1] == end[1]) {
-            r.push('H' + end[0]);
-        } else {
-            r.push(['L', end.join(',')])
-        }
+    var r = ['M', start.join(',')];
+    if (start[0] == end[0]) {
+        r.push('V' + end[1]);
+    } else if (start[1] == end[1]) {
+        r.push('H' + end[0]);
+    } else {
+        r.push(['L', end.join(',')])
+    }
+    return r
+};
+/**
+ * @description 利用Path制作Rect
+ * @param   start {Array}   eg:[50,50]
+ * @param   end   {Array}   eg:[100,30]
+ * @return result {Boolean}
+ */
+_.rect = function (start, end) {
+    var r = ['M', start.join(',')];
+    if (start[0] == end[0] || start[1] == end[1]) {
+        return _.line(start, end)
+    } else {
+        r.push('H' + end[0]);
+        r.push('V' + end[1]);
+        r.push('H' + start[0]);
+        r.push('C');
         return r
     }
-    /**
-     * @description 判断给定的变量是否为Object
-     * @param
-     * @return result {Boolean}
-     */
+};
+/**
+ * @description 判断给定的变量是否为Object
+ * @param
+ * @return result {Boolean}
+ */
 _.isObject = function (obj) {
     return obj === Object(obj);
 };
@@ -150,25 +168,25 @@ _.extend = function (obj) {
  * @return result {Number}
  */
 _.strLength = function () {
-        var len = 0;
-        _.each(arguments, function (item) {
-            len += item.replace(/[^ -~]/g, '**').length
-        });
-        return len
-    }
-    /**
-     * @description 生成随机的字符串
-     * @param
-     * @return result {String}
-     */
+    var len = 0;
+    _.each(arguments, function (item) {
+        len += item.replace(/[^ -~]/g, '**').length
+    });
+    return len
+};
+/**
+ * @description 生成随机的字符串
+ * @param
+ * @return result {String}
+ */
 _.strRandom = function () {
-        return Math.random().toString(16).slice(2)
-    }
-    /**
-     * @description 动画帧
-     * @param
-     * @return result {Boolean}
-     */
+    return Math.random().toString(16).slice(2)
+};
+/**
+ * @description 动画帧
+ * @param
+ * @return result {Boolean}
+ */
 _.requestAnimFrame = (function () {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
         window.setTimeout(callback, 1000 / 60);

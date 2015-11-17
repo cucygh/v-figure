@@ -10,7 +10,7 @@
  */
 var R = require('../core/raphael');
 var Bar = require('./index');
-var stdBar = function(options) {
+var stdBar = function (options) {
     var self = this,
         barSpace = {},
         create = self.create,
@@ -23,21 +23,21 @@ var stdBar = function(options) {
      * @param
      * @return result {Undefined}
      */
-    this.update = function() {
+    this.update = function () {
         var state = self.legendChange.call(this);
         var name = this.data('name');
         var _ = self._,
             c = self.config,
-            animation=c.animation,
+            animation = c.animation,
             series = c.series,
             curSerie,
             data;
         self.skip(name, state);
-        _.each(barSpace, function(item, key) {
-            curSerie = _.filter(series, function(val) {
+        _.each(barSpace, function (item, key) {
+            curSerie = _.filter(series, function (val) {
                 return val.name == key
             })[0];
-            _.each(item, function(subItem) {
+            _.each(item, function (subItem) {
                 data = create.call(self, subItem.data('value'), subItem.data('subIndex'), curSerie.index);
                 subItem.data(data);
                 if (!curSerie.skip) {
@@ -65,33 +65,35 @@ var stdBar = function(options) {
      * @param
      * @return result {Undefined}
      */
-    this.render = function() {
+    this.render = function () {
         var c = self.config,
             ani = c.animation,
             update = self.update,
-            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam;
+            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam,zebra;
         var _ = self._;
         axis = self.getAxis();
         tick = self.getTick();
         grid = self.getGrid();
+        zebra = self.getGridZebra();
         legend = self.getLegend();
         title = self.getTitle();
-        _.requestAnimFrame.call(window, function() {
+        _.requestAnimFrame.call(window, function () {
             _R.path(axis).attr(c.strokeAxis);
             _R.path(tick.tick).attr(c.strokeTick);
             _R.path(grid).attr(c.strokeGrid);
-            _.each(tick.text, function(item) {
+            _R.path(zebra).attr(c.strokeZebra);
+            _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(title, function(item) {
+            _.each(title, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(legend, function(item) {
+            _.each(legend, function (item) {
                 if (item.type == 'rect') {
                     _R.rect(item.x, item.y, item.w, item.h).attr(item.style).data({
                         name: item.name,
                         fill: item.style.fill
-                    }).click(function() {
+                    }).click(function () {
                         update.call(this);
                     });
                 } else {
@@ -99,19 +101,19 @@ var stdBar = function(options) {
                 }
             });
         });
-        _.requestAnimFrame.call(window, function() {
-            _.each(c.series, function(item, i) {
+        _.requestAnimFrame.call(window, function () {
+            _.each(c.series, function (item, i) {
                 tmp = barSpace[item.name] = _R.set();
-                _.each(item.data, function(subselftem, ii) {
+                _.each(item.data, function (subselftem, ii) {
                     tmpBarParam = create.call(null, subselftem, ii, i);
                     aniParam = {
                         y: tmpBarParam.y0 - tmpBarParam.h,
                         height: tmpBarParam.h
                     };
                     tmpBar = _R.rect(tmpBarParam.x, tmpBarParam.y0, tmpBarParam.w, 0);
-                    tmpBar.animate(aniParam, ani.duration, ani.type).data(tmpBarParam).hover(function() {
+                    tmpBar.animate(aniParam, ani.duration, ani.type).data(tmpBarParam).hover(function () {
                         this.attr('opacity', 0.6);
-                    }, function() {
+                    }, function () {
                         this.attr('opacity', 1);
                     });
                     tmp.push(tmpBar);

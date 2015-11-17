@@ -69,17 +69,19 @@ var stripBar = function(options) {
             ani = c.animation,
             update = self.update,
             reverse=c.reverse,
-            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam;
+            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam,zebra;
         var _ = self._;
         axis = self.getAxis();
         tick = self.getTick();
         grid = self.getGrid();
+        zebra = self.getGridZebra();
         legend = self.getLegend();
         title = self.getTitle();
         _.requestAnimFrame.call(window, function() {
             _R.path(axis).attr(c.strokeAxis);
             _R.path(tick.tick).attr(c.strokeTick);
             _R.path(grid).attr(c.strokeGrid);
+            _R.path(zebra).attr(c.strokeZebra);
             _.each(tick.text, function(item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });

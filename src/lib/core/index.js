@@ -186,7 +186,7 @@ Proto.getTick = function () {
         startX = origin[0];
         texts.push({
             x: startX - 5,
-            y: reverse?startY+h/2:startY,
+            y: reverse ? startY + h / 2 : startY,
             text: yAxis[i - 1],
             style: {
                 'text-anchor': 'end'
@@ -238,6 +238,52 @@ Proto.getGrid = function () {
         grid.push(path);
     }
     return grid.join('')
+};
+/**
+ * @description 暗格斑马线
+ * @param
+ * @return result {Boolean}
+ */
+Proto.getGridZebra = function () {
+    var c = this.config,
+        line = _.line,
+        zebra = [],
+        xAxis = c.xAxis,
+        yAxis = c.yAxis,
+        xAxisLen = xAxis.length,
+        yAxisLen = yAxis.length,
+        box = this.getBox(),
+        w = box.width / xAxisLen,
+        h = box.height / yAxisLen,
+        origin = [c.padding * 1, c.height - c.padding],
+        startX,
+        startY,
+        endX,
+        endY,
+        path;
+    if (!c.isGrid) {
+        return ''
+    }
+    if (c.reverse) {
+        for (i = 1; i < xAxisLen; i += 2) {
+            startY = origin[1] * 1 - box.height;
+            startX = origin[0] + w * i;
+            endX = origin[0] + w * (i + 1);
+            endY = origin[1];
+            path = _.rect([startX, startY], [endX, endY]);
+            zebra.push(path);
+        }
+    } else {
+        for (i = 1; i <yAxisLen; i += 2) {
+            startY = origin[1] * 1 - h * i;
+            startX = origin[0];
+            endX = c.width - c.padding;
+            endY = startY + h;
+            path = _.rect([startX, startY], [endX, endY]);
+            zebra.push(path);
+        }
+    }
+    return zebra.join('')
 };
 /**
  * @description 计算标题

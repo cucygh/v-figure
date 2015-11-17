@@ -37,6 +37,11 @@ var options = {
     color: '#666',
     // 线条的默认颜色
     bdColor: '#1ba9ba',
+    strokeZebra:{
+        fill: '#eee',
+        stroke:'none',
+        opacity:0.3
+    },
     // 坐标系的样式
     strokeAxis: {
         stroke: '#1ba9ba',
