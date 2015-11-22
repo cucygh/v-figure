@@ -10,6 +10,7 @@
  */
 var R = require('../core/raphael');
 var Bar = require('./index');
+
 var stripBar = function(options) {
     var self = this,
         barSpace = {},
@@ -100,6 +101,7 @@ var stripBar = function(options) {
                     _R.text(item.x, item.y, item.text).attr(item.style);
                 }
             });
+            _R.hover(function(){},function(){});
         });
         _.requestAnimFrame.call(window, function() {
             _.each(c.series, function(item, i) {
@@ -120,6 +122,7 @@ var stripBar = function(options) {
                 tmp.attr(item.style);
             });
         });
+        console.log(_R.canvas);
     }
 }
 stripBar.prototype = new Bar;

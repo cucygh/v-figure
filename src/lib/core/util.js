@@ -183,6 +183,48 @@ _.strRandom = function () {
     return Math.random().toString(16).slice(2)
 };
 /**
+ * @description 计算超过某个值的数量
+ * @param arr   {Array} 要计算的范围
+ * @param factor   {Number} 因子系数
+ * @param maxWidth   {Number} 阀值
+ * @return result {Boolean}
+ */
+_.exceedWidth = function (arr, factor, maxWidth) {
+    var i = 0;
+    _.each(arr, function (item) {
+        i = Math.max(i, _.strLength(item) * factor / maxWidth);
+    });
+    return Math.ceil(i)
+};
+
+/**
+ * @description 判断一个点是否在指定区域内
+ * @param   point {objext}  要检测的点
+ *              x {Number}
+ *              y {Number}
+ * @param   origin {objext}  原点坐标
+ *              x {Number}
+ *              y {Number}
+ * @param   box {objext}  边距
+ *              width {Number}
+ *              height {Number}
+ * @return result {Boolean}
+ */
+_.isInBox = function (point, origin, box) {
+    var xMin = origin.x,
+        xMax = xMin + box.width,
+        yMax = origin.y,
+        yMin = yMax - box.height,
+        x = point.x,
+        y = point.y,
+        r = false;
+    if (x > xMin && x < xMax && y > yMin && y < yMax) {
+        r = true;
+    }
+    return r;
+};
+
+/**
  * @description 动画帧
  * @param
  * @return result {Boolean}

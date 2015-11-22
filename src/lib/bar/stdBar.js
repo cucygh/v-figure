@@ -80,7 +80,7 @@ var stdBar = function (options) {
         _.requestAnimFrame.call(window, function () {
             _R.path(axis).attr(c.strokeAxis);
             _R.path(tick.tick).attr(c.strokeTick);
-            _R.path(grid).attr(c.strokeGrid);
+            _R.path(grid).attr(c.strokeGrid)
             _R.path(zebra).attr(c.strokeZebra);
             _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);

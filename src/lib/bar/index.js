@@ -15,7 +15,7 @@ var _ = require('../core/util');
  * @param
  * @return result {Object}
  */
-var Bar = function() {
+var Bar = function () {
     var self = this;
     // 类名
     this.name = 'Bar';
@@ -28,7 +28,7 @@ var Bar = function() {
      * @param
      * @return result {Boolean}
      */
-    this.legendChange = function() {
+    this.legendChange = function () {
         var I = this,
             disabled = '#999',
             fill = I.attr('fill'),
@@ -45,13 +45,13 @@ var Bar = function() {
      * @param
      * @return result {Boolean}
      */
-    this.resetPosition = function(start, end) {};
+    this.resetPosition = function (start, end) {};
     /**
      * @description 获取单个实例的宽度或伸缩度
      * @param
      * @return result {Boolean}
      */
-    this.getChildWidth = function() {
+    this.getChildWidth = function () {
         var gapRadio = self.gapRadio,
             c = self.config, //配置参数
             reverse = c.reverse, //坐标系是否反转
@@ -66,7 +66,7 @@ var Bar = function() {
      * @param
      * @return result {Array}
      */
-    this.create = function(value, subIndex, index) {
+    this.create = function (value, subIndex, index) {
         var gapRadio = self.gapRadio,
             box = self.getBox(),
             c = self.config, //配置参数
@@ -88,17 +88,17 @@ var Bar = function() {
         if (reverse) {
             x = c.origin[0] + c.strokeAxis['stroke-width'];
             y = c.origin[1] - subIndex * c.ceilWidth;
-            y -= index * (width + gap)+gap;
+            y -= index * (width + gap) + gap;
         }
         return {
             x: x,
             y: y,
-            w: reverse?height:width,
-            h: reverse?width:height,
+            w: reverse ? height : width,
+            h: reverse ? width : height,
             y0: y0,
             x0: x0,
             subIndex: subIndex,
-            value:value
+            value: value
         }
     }
 };

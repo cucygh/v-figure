@@ -160,13 +160,14 @@ Proto.getTick = function () {
         origin = [c.padding * 1, c.height - c.padding],
         line = _.line,
         reverse = c.reverse,
+        xexceed = reverse ? 1 : _.exceedWidth(xAxis, 6, c.ceilWidth),
         startX,
         startY,
         endX,
         endY,
         path,
         text;
-    for (var i = 0; i <= xAxisLen; i++) {
+    for (var i = 0; i <= xAxisLen; i += xexceed) {
         startX = endX = origin[0] + w * i;
         startY = origin[1];
         endY = startY * 1 + 5;
@@ -174,9 +175,9 @@ Proto.getTick = function () {
         ticks.push(path);
         if (i == xAxisLen) {
             break;
-        }
+        };
         texts.push({
-            x: reverse ? (startX + w) : (startX + w / 2),
+            x: reverse ? (startX + w) : (startX + w * xexceed / 2),
             y: startY * 1 + 10,
             text: xAxis[i]
         });
@@ -274,7 +275,7 @@ Proto.getGridZebra = function () {
             zebra.push(path);
         }
     } else {
-        for (i = 1; i <yAxisLen; i += 2) {
+        for (i = 1; i < yAxisLen; i += 2) {
             startY = origin[1] * 1 - h * i;
             startX = origin[0];
             endX = c.width - c.padding;
@@ -374,4 +375,79 @@ Proto.getLegend = function () {
     });
     return legends
 };
+
+/**
+ * @description 鼠标聚焦效果
+ * @param x  {Number}  鼠标X坐标
+ * @param y  {Number}  鼠标Y坐标
+ * @param type  {String}  聚焦类型
+ *          - cross  {String} 交叉效果
+ *          - line  {String} 直线效果
+ *          - rect  {String} 矩形阴影效果
+ * @return result {Boolean}
+ */
+Proto.getFocus = function (x, y, type) {
+    var c = this.config,
+        origin = c.origin,
+        padding = c.padding,
+        reverse = c.reverse,
+        ceilWidth = c.ceilWidth,
+        box = this.getBox(),
+        x0 = c.x0,
+        y0 = c.y0,
+        point = {
+            x: x,
+            y: y
+        },
+        originPoint = {
+            x: origin[0],
+            y: origin[1]
+        },
+        start,
+        end,
+        r = [];
+    if (_.isInBox(point, originPoint, box)) {
+        switch (type) {
+        case 'cross':
+            start = [x0, y];
+            end = [x0 + box.width, y];
+            r.push(_.line(start, end));
+            start = [origin[1], y0];
+            end = [origin[1], y0 - box.height];
+            r.push(_.line(start, end));
+            break;
+        case 'line':
+            if (reverse) {
+                y = Math.floor(y / ceilWidth);
+                start = [x0, y * ceilWidth];
+                end = [x0 + box.width, y * ceilWidth];
+                r.push(_.line(start, end));
+            } else {
+                x = Math.floor(x / ceilWidth);
+                start = [x * ceilWidth, y0];
+                end = [x * ceilWidth, y0 - box.height];
+                r.push(_.line(start, end));
+            }
+            break;
+        case 'rect':
+            if (reverse) {
+                y = Math.floor(y / ceilWidth);
+                start = [x0, y * ceilWidth];
+                end = [x0 + box.width, y * ceilWidth];
+                r.push(_.rect(start, end));
+            } else {
+                x = Math.floor(x / ceilWidth);
+                start = [x * ceilWidth, y0-box.height];
+                end = [x * ceilWidth, y0 - box.height];
+                r.push(_.rect(start, end));
+            }
+            break;
+        default:
+            r = 'M'+[x0,y0].join(',');
+        }
+    } else {
+        r = 'M'+[x0,y0].join(',');
+    }
+};
+
 module.exports = Factory
