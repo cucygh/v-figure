@@ -1,10 +1,10 @@
 /**
  * @ignore  =====================================================================================
- * @fileoverview   柱状图实例
+ * @fileoverview   折线图实例
  * @see wiki
  * @author  guohui.yin@qunar.com
  * @version 1.0.0
- * @ignore  created in 2015-11-13
+ * @ignore  created in 2015-11-26
  * @ignore  depend Library Raphael
  * @ignore  =====================================================================================
  */
@@ -15,10 +15,10 @@ var _ = require('../core/util');
  * @param
  * @return result {Object}
  */
-var Bar = function () {
+var PolyLine = function () {
     var self = this;
     // 类名
-    this.name = 'Bar';
+    this.name = 'PolyLine';
     // 柱状图类型
     this.type = 'Number';
     // 实例于间隔的比例
@@ -32,30 +32,29 @@ var Bar = function () {
         var I = this,
             disabled = '#999',
             fill = I.attr('fill'),
+            srcFill = I.data('fill'),
+            sibling,
             state;
+        if (I.type == 'text') {
+            I = I.prev;
+        }
+        sibling = I.next;
         if (state = fill == disabled) {
-            I.attr('fill', I.data('fill'));
+            I.attr({
+                stroke: srcFill,
+                fill: srcFill
+            });
+            sibling.attr('fill', srcFill);
         } else {
-            I.attr('fill', disabled);
+            I.attr({
+                stroke: disabled,
+                fill: disabled
+            });
+            sibling.attr('fill', disabled);
         }
         return state
     };
 
-    /**
-     * @description 获取单个实例的宽度或伸缩度
-     * @param
-     * @return result {Boolean}
-     */
-    this.getChildWidth = function () {
-        var gapRadio = self.gapRadio,
-            c = self.config, //配置参数
-            reverse = c.reverse, //坐标系是否反转
-            ceilWidth = c.ceilWidth, //刻度的单元格
-            base = c.seriesLength * (1 + gapRadio) + gapRadio, //基数
-            width = c.ceilWidth / base; //实例的宽度
-        c.childWidth = width;
-        return width;
-    };
     /**
      * @description 计算图例
      * @param
@@ -69,7 +68,7 @@ var Bar = function () {
             len = 0,
             i = 0,
             w = 35,
-            h = 20,
+            h = 10,
             x,
             y;
         if (legend && series.length) {
@@ -78,7 +77,7 @@ var Bar = function () {
                     len += _.strLength(item.legend);
                     i++;
                 }
-            })
+            });
         }
         //  计算起始字符的坐标
         x = c.width / 2 - (len * 5 + i * (w + 5)) / 2;
@@ -86,12 +85,11 @@ var Bar = function () {
         _.each(series, function (item) {
             legends.push({
                 x: x,
-                y: y,
+                y: y + h / 2,
                 w: w,
-                h: h,
-                type: 'rect',
+                type: 'line',
                 name: item.name,
-                style: item.style
+                style: item.style.line
             });
             x += w;
             legends.push({
@@ -99,7 +97,9 @@ var Bar = function () {
                 y: y + h / 2,
                 text: item.legend,
                 type: 'text',
+                name: item.name,
                 style: {
+                    fill: item.style.line.stroke,
                     'text-anchor': 'start'
                 }
             });
@@ -112,41 +112,55 @@ var Bar = function () {
      * @param
      * @return result {Array}
      */
-    this.create = function (value, subIndex, index) {
+    this.create = function (values) {
         var gapRadio = self.gapRadio,
             box = self.getBox(),
             c = self.config, //配置参数
-            reverse = c.reverse, //坐标系是否反转
             max = c.Max, //坐标的最大值
             ceilWidth = c.ceilWidth, //刻度的单元格
-            width = c.childWidth || self.getChildWidth(), //实例的宽度
             y0 = c.y0, //实例的起始纵坐标
             x0 = c.x0, //实例的起始横坐标
-            height = (value / max) * (reverse ? box.width : box.height), //实例的高度
+            line = [],
+            startLine = [],
+            points = [],
             gap, //间隔
             x, //横坐标
             y, //纵坐标
+            y00,
+            prePoint,
             rect; //实例
-        gap = width * gapRadio;
-        x = c.origin[0] + subIndex * c.ceilWidth;
-        x += index * (width + gap) + gap;
-        y = c.origin[1] - height - c.strokeAxis['stroke-width'];
-        if (reverse) {
-            x = c.origin[0] + c.strokeAxis['stroke-width'];
-            y = c.origin[1] - subIndex * c.ceilWidth;
-            y -= index * (width + gap) + gap;
-        }
+        _.each(values, function (item, index) {
+            height = (item / max) * box.height; //实例的高度
+            y = y0 - height;
+            x = x0 + index * ceilWidth;
+            if (index == 0) {
+                prePoint = {
+                    x: x0,
+                    y: y
+                };
+                startLine.push('M' + x0 + ',' + y);
+                y00 = y;
+                line.push('M' + x + ',' + y);
+            } else {
+                startLine.push('L' + x + ',' + y00);
+                prePoint = {
+                    x: x,
+                    y: y
+                };
+            };
+            points.push({
+                x: x,
+                y: y
+            });
+        });
+
+        line = _.bezier(points, 0.15, 0.15);
         return {
-            x: x,
-            y: y,
-            w: reverse ? height : width,
-            h: reverse ? width : height,
-            y0: y0,
-            x0: x0,
-            subIndex: subIndex,
-            value: value
+            startLine: startLine.join(''),
+            line: line,
+            points: points
         }
     }
 };
-Bar.prototype = new Core;
-module.exports = Bar;
+PolyLine.prototype = new Core;
+module.exports = PolyLine;

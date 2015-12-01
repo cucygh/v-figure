@@ -11,7 +11,7 @@
 var R = require('../core/raphael');
 var Bar = require('./index');
 
-var stripBar = function(options) {
+var stripBar = function (options) {
     var self = this,
         barSpace = {},
         create = self.create,
@@ -24,21 +24,21 @@ var stripBar = function(options) {
      * @param
      * @return result {Undefined}
      */
-    this.update = function() {
+    this.update = function () {
         var state = self.legendChange.call(this);
         var name = this.data('name');
         var _ = self._,
             c = self.config,
-            animation=c.animation,
+            animation = c.animation,
             series = c.series,
             curSerie,
             data;
         self.skip(name, state);
-        _.each(barSpace, function(item, key) {
-            curSerie = _.filter(series, function(val) {
+        _.each(barSpace, function (item, key) {
+            curSerie = _.filter(series, function (val) {
                 return val.name == key
             })[0];
-            _.each(item, function(subItem) {
+            _.each(item, function (subItem) {
                 data = create.call(self, subItem.data('value'), subItem.data('subIndex'), curSerie.index);
                 subItem.data(data);
                 if (!curSerie.skip) {
@@ -65,12 +65,12 @@ var stripBar = function(options) {
      * @param
      * @return result {Undefined}
      */
-    this.render = function() {
+    this.render = function () {
         var c = self.config,
             ani = c.animation,
             update = self.update,
-            reverse=c.reverse,
-            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam,zebra;
+            reverse = c.reverse,
+            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam, zebra, hover, timeID;
         var _ = self._;
         axis = self.getAxis();
         tick = self.getTick();
@@ -78,43 +78,44 @@ var stripBar = function(options) {
         zebra = self.getGridZebra();
         legend = self.getLegend();
         title = self.getTitle();
-        _.requestAnimFrame.call(window, function() {
+        hover=self.getFocus(0,0,'rect');
+        _.requestAnimFrame.call(window, function () {
             _R.path(axis).attr(c.strokeAxis);
             _R.path(tick.tick).attr(c.strokeTick);
             _R.path(grid).attr(c.strokeGrid);
             _R.path(zebra).attr(c.strokeZebra);
-            _.each(tick.text, function(item) {
+            hover = _R.path(hover).attr(c.strokeFocus);
+            _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(title, function(item) {
+            _.each(title, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(legend, function(item) {
+            _.each(legend, function (item) {
                 if (item.type == 'rect') {
                     _R.rect(item.x, item.y, item.w, item.h).attr(item.style).data({
                         name: item.name,
                         fill: item.style.fill
-                    }).click(function() {
+                    }).click(function () {
                         update.call(this);
                     });
                 } else {
                     _R.text(item.x, item.y, item.text).attr(item.style);
                 }
             });
-            _R.hover(function(){},function(){});
         });
-        _.requestAnimFrame.call(window, function() {
-            _.each(c.series, function(item, i) {
+        _.requestAnimFrame.call(window, function () {
+            _.each(c.series, function (item, i) {
                 tmp = barSpace[item.name] = _R.set();
-                _.each(item.data, function(subselftem, ii) {
+                _.each(item.data, function (subselftem, ii) {
                     tmpBarParam = create.call(null, subselftem, ii, i);
                     aniParam = {
                         width: tmpBarParam.w
                     };
-                    tmpBar = _R.rect(tmpBarParam.x0, tmpBarParam.y-tmpBarParam.h, 0, tmpBarParam.h);
-                    tmpBar.animate(aniParam, ani.duration, ani.type).data(tmpBarParam).hover(function() {
+                    tmpBar = _R.rect(tmpBarParam.x0, tmpBarParam.y - tmpBarParam.h, 0, tmpBarParam.h);
+                    tmpBar.animate(aniParam, ani.duration, ani.type).data(tmpBarParam).hover(function () {
                         this.attr('opacity', 0.6);
-                    }, function() {
+                    }, function () {
                         this.attr('opacity', 1);
                     });
                     tmp.push(tmpBar);
@@ -122,7 +123,15 @@ var stripBar = function(options) {
                 tmp.attr(item.style);
             });
         });
-        console.log(_R.canvas);
+        // 定义hover效果
+        this.on(_R.canvas, 'mousemove', function (e) {
+            timeID && clearTimeout(timeID);
+            timeID = setTimeout(function () {
+                var x = e.offsetX - c.root.offsetLeft;
+                var y = e.offsetY - c.root.offsetTop;
+                hover.attr('path', self.getFocus(x, y, 'rect'));
+            }, 50);
+        });
     }
 }
 stripBar.prototype = new Bar;

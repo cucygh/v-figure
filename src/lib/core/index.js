@@ -30,8 +30,8 @@ Proto.skip = function (name, value) {
             item.skip = !value;
         }
     });
-    this.getSeriesLength.call(this);
-    this.getChildWidth.call(this);
+    this.getSeriesLength && this.getSeriesLength.call(this);
+    this.getChildWidth && this.getChildWidth.call(this);
 };
 /**
  * @description 计算有效数据的长度
@@ -60,6 +60,8 @@ Proto.check = function () {
     var yAxis = c.yAxis,
         xAxis = c.xAxis,
         box = this.getBox();
+    // 获取最外层的Root对象
+    c.root = document.getElementById(c.id);
     // 计算数据维度的有效长度
     Proto.getSeriesLength.call(this);
     // 标识数据项
@@ -135,10 +137,14 @@ Proto.getAxis = function () {
         c = this.config,
         origin = c.origin,
         xEnd = [c.width - c.padding, origin[1]],
-        yEnd = [origin[0], c.padding];
-    var xPath = line(origin, xEnd),
-        yPath = line(origin, yEnd),
-        r = xPath.concat(yPath);
+        yEnd = [origin[0], c.padding],
+        r = [];
+    if (c.isxAxis) {
+        r.push(line(origin, xEnd));
+    }
+    if (c.isyAxis) {
+        r.push(line(origin, yEnd));
+    }
     return r.join('')
 };
 /**
@@ -167,33 +173,38 @@ Proto.getTick = function () {
         endY,
         path,
         text;
-    for (var i = 0; i <= xAxisLen; i += xexceed) {
-        startX = endX = origin[0] + w * i;
-        startY = origin[1];
-        endY = startY * 1 + 5;
-        path = line([startX, startY], [endX, endY]);
-        ticks.push(path);
-        if (i == xAxisLen) {
-            break;
-        };
-        texts.push({
-            x: reverse ? (startX + w) : (startX + w * xexceed / 2),
-            y: startY * 1 + 10,
-            text: xAxis[i]
-        });
+    if (c.isxAxis) {
+        for (var i = 0; i <= xAxisLen; i += xexceed) {
+            startX = endX = origin[0] + w * i;
+            startY = origin[1];
+            endY = startY * 1 + 5;
+            path = line([startX, startY], [endX, endY]);
+            ticks.push(path);
+            if (i == xAxisLen) {
+                break;
+            };
+            texts.push({
+                x: reverse ? (startX + w) : (startX + w * xexceed / 2),
+                y: startY * 1 + 10,
+                text: xAxis[i]
+            });
+        }
     }
-    for (i = 1; i <= yAxisLen; i++) {
-        startY = endY = origin[1] - h * i;
-        startX = origin[0];
-        texts.push({
-            x: startX - 5,
-            y: reverse ? startY + h / 2 : startY,
-            text: yAxis[i - 1],
-            style: {
-                'text-anchor': 'end'
-            }
-        });
+    if (c.isyAxis) {
+        for (i = 1; i <= yAxisLen; i++) {
+            startY = endY = origin[1] - h * i;
+            startX = origin[0];
+            texts.push({
+                x: startX - 5,
+                y: reverse ? startY + h / 2 : startY,
+                text: yAxis[i - 1],
+                style: {
+                    'text-anchor': 'end'
+                }
+            });
+        }
     }
+
     return {
         tick: ticks.join(''),
         text: texts
@@ -324,57 +335,7 @@ Proto.getTitle = function () {
     }
     return titles
 };
-/**
- * @description 计算图例
- * @param
- * @return result {Boolean}
- */
-Proto.getLegend = function () {
-    var c = this.config,
-        series = c.series,
-        legend = c.legend,
-        legends = [],
-        len = 0,
-        i = 0,
-        w = 35,
-        h = 20,
-        x,
-        y;
-    if (legend && series.length) {
-        _.each(series, function (item) {
-            if (item.legend) {
-                len += _.strLength(item.legend);
-                i++;
-            }
-        })
-    }
-    //  计算起始字符的坐标
-    x = c.width / 2 - (len * 5 + i * (w + 5)) / 2;
-    y = c.padding + c.title.padding[1];
-    _.each(series, function (item) {
-        legends.push({
-            x: x,
-            y: y,
-            w: w,
-            h: h,
-            type: 'rect',
-            name: item.name,
-            style: item.style
-        });
-        x += w;
-        legends.push({
-            x: x,
-            y: y + h / 2,
-            text: item.legend,
-            type: 'text',
-            style: {
-                'text-anchor': 'start'
-            }
-        });
-        x += _.strLength(item.legend) * 5 + 5
-    });
-    return legends
-};
+
 
 /**
  * @description 鼠标聚焦效果
@@ -405,6 +366,7 @@ Proto.getFocus = function (x, y, type) {
         },
         start,
         end,
+        height,
         r = [];
     if (_.isInBox(point, originPoint, box)) {
         switch (type) {
@@ -417,36 +379,58 @@ Proto.getFocus = function (x, y, type) {
             r.push(_.line(start, end));
             break;
         case 'line':
+            // 坐标系反转没有调试
             if (reverse) {
-                y = Math.floor(y / ceilWidth);
-                start = [x0, y * ceilWidth];
-                end = [x0 + box.width, y * ceilWidth];
+                y = Math.floor((y - c.padding) / ceilWidth);
+                start = [origin[0], y * ceilWidth];
+                end = [origin[0] + box.width, y * ceilWidth];
                 r.push(_.line(start, end));
             } else {
-                x = Math.floor(x / ceilWidth);
-                start = [x * ceilWidth, y0];
-                end = [x * ceilWidth, y0 - box.height];
+                x = Math.round((x - c.padding) / ceilWidth);
+                start = [origin[0] + x * ceilWidth, origin[1]];
+                end = [origin[0] + x * ceilWidth, origin[1] - box.height];
                 r.push(_.line(start, end));
             }
             break;
         case 'rect':
             if (reverse) {
-                y = Math.floor(y / ceilWidth);
-                start = [x0, y * ceilWidth];
-                end = [x0 + box.width, y * ceilWidth];
+                y = Math.floor((y - c.padding) / ceilWidth);
+                height = origin[1] - box.height;
+                start = [origin[0], height + y * ceilWidth];
+                end = [origin[0] + box.width, height + (y + 1) * ceilWidth];
                 r.push(_.rect(start, end));
             } else {
-                x = Math.floor(x / ceilWidth);
-                start = [x * ceilWidth, y0-box.height];
-                end = [x * ceilWidth, y0 - box.height];
+                x = Math.floor((x - c.padding) / ceilWidth);
+                start = [origin[0] + x * ceilWidth, y0 - box.height];
+                end = [origin[0] + (x + 1) * ceilWidth, y0];
                 r.push(_.rect(start, end));
             }
             break;
         default:
-            r = 'M'+[x0,y0].join(',');
+            r = ['M', [x0, y0].join(',')];
         }
     } else {
-        r = 'M'+[x0,y0].join(',');
+        r = ['M', [x0, y0].join(',')];
+    }
+    return r.join('');
+};
+
+/**
+ * @description 事件注册方法
+ * @param   el  DOM
+ * @param   type  标准的事件类型
+ * @param   handle  事件响应函数
+ * @return result {Boolean}
+ */
+Proto.on = function (el, type, handle) {
+    if (el) {
+        if (el.addEventListener) {
+            el.addEventListener(type, handle, false);
+        } else if (el.attachEvent) {
+            el.attachEvent('on' + type, handle);
+        }
+    } else {
+        return false;
     }
 };
 

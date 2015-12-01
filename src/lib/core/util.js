@@ -91,8 +91,86 @@ _.rect = function (start, end) {
         return r
     }
 };
+
 /**
- * @description 判断给定的变量是否为Object
+ * @description 利用Path制作Circle
+ * @param
+ * @return result {Boolean}
+ */
+_.circle = function (x, y, r) {
+    var rt = ['M' + (x - r) + ',' + y],
+        left = [x - r, y],
+        right = [x + r, y];
+    rt.push(['A' + r + ',' + r, 0, 1, 0, right.join(' ')].join(','));
+    rt.push('M' + (x + r) + ',' + y);
+    rt.push(['A' + r + ',' + r, 0, 1, 0, left.join(' ')].join(','));
+
+    return rt;
+};
+
+/**
+ * @description 三次贝塞尔曲线控制点计算
+ * @param
+ * @return result {Boolean}
+ */
+_.bezierCtrlPoint = function (points, a, b) {
+    if (!a || !b) {
+        a = 0.25;
+        b = 0.25;
+    }
+    var r = [],
+        len = points.length,
+        aX, aY, bX, bY, last;
+    _.each(points, function (item, index) {
+        if (index == len - 1) {
+            return true
+        }
+        if (index < 1) {
+            var aX = item.x + (points[1].x - points[0].x) * a;
+            var aY = item.y + (points[1].y - points[0].y) * a;
+        } else {
+            var aX = item.x + (points[index + 1].x - points[index - 1].x) * a;
+            var aY = item.y + (points[index + 1].y - points[index - 1].y) * a;
+        };
+        if (index > len - 3) {
+            last = len - 1;
+            var bX = points[last].x - (points[last].x - points[last - 1].x) * b;
+            var bY = points[last].y - (points[last].y - points[last - 1].y) * b;
+        } else {
+            var bX = points[index + 1].x - (points[index + 2].x - item.x) * b;
+            var bY = points[index + 1].y - (points[index + 2].y - item.y) * b;
+        };
+        r.push([{
+            x: aX,
+            y: aY
+        }, {
+            x: bX,
+            y: bY
+        }]);
+    });
+    return r;
+};
+
+/**
+ * @description 三次贝塞尔曲线
+ * @param
+ * @return result {Boolean}
+ */
+_.bezier = function (points, a, b) {
+    var ctrls = _.bezierCtrlPoint(points, a, b),
+        r = ['M' + points[0].x + ' ' + points[0].y],
+        len = points.length,
+        ctrl,
+        i;
+    for (i = 1; i < len; i++) {
+        ctrl = ctrls[i - 1];
+        r.push('C' + ctrl[0].x + ' ' + ctrl[0].y + ',' + ctrl[1].x + ' ' + ctrl[1].y + ',' + points[i].x + ' ' + points[i].y);
+    }
+    return r.join('');
+};
+
+/**
+ * @description 判断给定的变量是否为对象
  * @param
  * @return result {Boolean}
  */
@@ -223,6 +301,8 @@ _.isInBox = function (point, origin, box) {
     }
     return r;
 };
+
+
 
 /**
  * @description 动画帧

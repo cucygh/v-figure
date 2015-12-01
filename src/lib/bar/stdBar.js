@@ -69,7 +69,7 @@ var stdBar = function (options) {
         var c = self.config,
             ani = c.animation,
             update = self.update,
-            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam,zebra;
+            axis, tick, grid, legend, title, tmp, tmpBar, tmpBarParam, aniParam, zebra, hover, timeID;
         var _ = self._;
         axis = self.getAxis();
         tick = self.getTick();
@@ -77,11 +77,14 @@ var stdBar = function (options) {
         zebra = self.getGridZebra();
         legend = self.getLegend();
         title = self.getTitle();
+        hover = self.getFocus(0, 0, 'rect');
+        // 绘制基本信息
         _.requestAnimFrame.call(window, function () {
             _R.path(axis).attr(c.strokeAxis);
             _R.path(tick.tick).attr(c.strokeTick);
             _R.path(grid).attr(c.strokeGrid)
             _R.path(zebra).attr(c.strokeZebra);
+            hover = _R.path(hover).attr(c.strokeFocus);
             _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
@@ -101,6 +104,7 @@ var stdBar = function (options) {
                 }
             });
         });
+        // 绘制数据
         _.requestAnimFrame.call(window, function () {
             _.each(c.series, function (item, i) {
                 tmp = barSpace[item.name] = _R.set();
@@ -120,6 +124,16 @@ var stdBar = function (options) {
                 });
                 tmp.attr(item.style);
             });
+        });
+
+        // 定义hover效果
+        this.on(_R.canvas, 'mousemove', function (e) {
+            timeID && clearTimeout(timeID);
+            timeID = setTimeout(function () {
+                var x = e.offsetX - c.root.offsetLeft;
+                var y = e.offsetY - c.root.offsetTop;
+                hover.attr('path', self.getFocus(x, y, 'rect'));
+            }, 50);
         });
     }
 }
