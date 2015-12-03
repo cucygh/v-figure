@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+    <title>折线图示例</title>
+    <style media="screen">
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .flexbox {
+            display: flex;
+        }
+
+        .flex {
+            flex: 1;
+        }
+
+        .left {
+            flex: none;
+            width: 30px;
+        }
+
+        .right {
+            overflow-x: auto;
+        }
+
+        ::-webkit-scrollbar {
+            width: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <article class="flexbox">
+        <nav class="flex left" id="yAxis">
+            
+        </nav>
+        <section class="flex right" id="canvas"></section>
+    </article>
+    <script src="//qunarzz.com/v-figure/prd/demo/polylineMobile.js"></script>
+</body>
+
+</html>

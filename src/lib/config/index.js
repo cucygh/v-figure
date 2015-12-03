@@ -67,8 +67,8 @@ var options = {
         fill: '#eee',
         opacity: 0.6
     },
-    // 画布的内边距
-    padding: 50,
+    // 画布的内边距，上-右-下-左
+    padding: '50 50 50 50',
     // 画布的宽度
     width: 800,
     // 画布的高度
@@ -77,12 +77,8 @@ var options = {
     isGrid: true,
     // 横坐标
     xAxis: [],
-    // 横坐标是否展示
-    isxAxis: true,
     // 纵坐标
     yAxis: [],
-    // 纵坐标是否展示
-    isyAxis: true,
     // 动画设置
     animation: {
         duration: 1000,
@@ -93,7 +89,23 @@ var options = {
     // 图表类型
     type: 'Number',
     // 坐标系是否反转
-    reverse: false
+    reverse: false,
+    // 横坐标是否展示
+    isxAxis: true,
+    // 纵坐标是否展示
+    isyAxis: true,
+    // 栅格是否显示
+    isGrid:true,
+    // 标题是否显示
+    isTitle: true,
+    // 图例是否显示
+    isLegend: true,
+    // 聚焦效果是否开启
+    isFocus: true,
+    // 斑马纹路是否显示
+    isZebra: true,
+    // 数据是否绘制
+    isData:true
 };
 
 module.exports = options;

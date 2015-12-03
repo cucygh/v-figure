@@ -13,11 +13,21 @@ var config = require('../config/index');
 // 辅助类
 var _ = require('./util');
 // 构造类
-var Factory = function () {
-        this.config = config;
-        this._ = _;
-    },
+var Factory = function () {},
     Proto = Factory.prototype;
+/**
+ * @description  默认的配置参数
+ * @param
+ * @return result {Boolean}
+ */
+Proto.config = config;
+
+/**
+ * @description 辅助函数库
+ * @param
+ * @return result {Boolean}
+ */
+Proto._ = _;
 /**
  * @description 多维数据的状态控制
  * @param name  维度名称
@@ -59,9 +69,13 @@ Proto.check = function () {
     var c = this.config;
     var yAxis = c.yAxis,
         xAxis = c.xAxis,
-        box = this.getBox();
+        box;
     // 获取最外层的Root对象
     c.root = document.getElementById(c.id);
+    // 计算补白
+    c.padding = _.paddingCompute(c.padding);
+    // 计算有效区域
+    c.Box = box = this.getBox();
     // 计算数据维度的有效长度
     Proto.getSeriesLength.call(this);
     // 标识数据项
@@ -69,7 +83,7 @@ Proto.check = function () {
         item.name = item.name || _.strRandom()
     });
     // 计算坐标原点
-    c.origin = [c.padding * 1, c.height - c.padding];
+    c.origin = [c.padding.left, c.height - c.padding.bottom];
     // 计算实际坐标原点
     c.y0 = c.origin[1] - c.strokeAxis['stroke-width']; //实例的起始纵坐标
     c.x0 = c.origin[0] + c.strokeAxis['stroke-width']; //实例的起始横坐标
@@ -108,7 +122,8 @@ Proto.check = function () {
  * @return result {Undefined}
  */
 Proto.setOptions = function (options) {
-    _.extend(this.config, options);
+    // 必须重新赋值，否则直接修改的是原型链将影响所有的对象
+    this.config = _.extend({}, this.config, options);
     Proto.check.call(this);
 };
 /**
@@ -121,8 +136,8 @@ Proto.getBox = function () {
     var c = this.config;
     if (!c.Box) {
         c.Box = {
-            width: c.width - c.padding * 2,
-            height: c.height - c.padding * 2
+            width: c.width - c.padding.left - c.padding.right,
+            height: c.height - c.padding.top - c.padding.bottom
         };
     }
     return c.Box
@@ -136,9 +151,13 @@ Proto.getAxis = function () {
     var line = _.line,
         c = this.config,
         origin = c.origin,
-        xEnd = [c.width - c.padding, origin[1]],
-        yEnd = [origin[0], c.padding],
+        xEnd = [c.width - c.padding.right, origin[1]],
+        yEnd = [origin[0], c.padding.top],
         r = [];
+    if (!c.isxAxis && !c.isyAxis) {
+        return ''
+    }
+
     if (c.isxAxis) {
         r.push(line(origin, xEnd));
     }
@@ -160,10 +179,10 @@ Proto.getTick = function () {
         yAxis = c.yAxis,
         xAxisLen = xAxis.length,
         yAxisLen = yAxis.length,
-        box = this.getBox(),
+        box = c.Box,
         w = box.width / xAxisLen,
         h = box.height / yAxisLen,
-        origin = [c.padding * 1, c.height - c.padding],
+        origin = c.origin,
         line = _.line,
         reverse = c.reverse,
         xexceed = reverse ? 1 : _.exceedWidth(xAxis, 6, c.ceilWidth),
@@ -173,7 +192,10 @@ Proto.getTick = function () {
         endY,
         path,
         text;
-    if (c.isxAxis) {
+    if (!c.isxAxis && !c.isyAxis) {
+        return ''
+    }
+    if (c.isxAxis && xAxisLen) {
         for (var i = 0; i <= xAxisLen; i += xexceed) {
             startX = endX = origin[0] + w * i;
             startY = origin[1];
@@ -190,7 +212,7 @@ Proto.getTick = function () {
             });
         }
     }
-    if (c.isyAxis) {
+    if (c.isyAxis && yAxisLen) {
         for (i = 1; i <= yAxisLen; i++) {
             startY = endY = origin[1] - h * i;
             startX = origin[0];
@@ -223,10 +245,11 @@ Proto.getGrid = function () {
         yAxis = c.yAxis,
         xAxisLen = xAxis.length,
         yAxisLen = yAxis.length,
-        box = this.getBox(),
+        box = c.Box,
         w = box.width / xAxisLen,
         h = box.height / yAxisLen,
-        origin = [c.padding * 1, c.height - c.padding],
+        origin = c.origin,
+        padding = c.padding,
         startX,
         startY,
         endX,
@@ -238,14 +261,14 @@ Proto.getGrid = function () {
     for (var i = 1; i <= xAxisLen; i++) {
         startX = endX = origin[0] * 1 + w * i;
         startY = origin[1];
-        endY = c.padding;
+        endY = padding.top;
         path = line([startX, startY], [endX, endY]);
         grid.push(path);
     }
     for (i = 1; i <= yAxisLen; i++) {
         startY = endY = origin[1] * 1 - h * i;
         startX = origin[0];
-        endX = c.width - c.padding;
+        endX = c.width - padding.right;
         path = line([startX, startY], [endX, endY]);
         grid.push(path);
     }
@@ -264,10 +287,11 @@ Proto.getGridZebra = function () {
         yAxis = c.yAxis,
         xAxisLen = xAxis.length,
         yAxisLen = yAxis.length,
-        box = this.getBox(),
+        box = c.Box,
         w = box.width / xAxisLen,
         h = box.height / yAxisLen,
-        origin = [c.padding * 1, c.height - c.padding],
+        origin = c.origin,
+        padding = c.padding,
         startX,
         startY,
         endX,
@@ -289,7 +313,7 @@ Proto.getGridZebra = function () {
         for (i = 1; i < yAxisLen; i += 2) {
             startY = origin[1] * 1 - h * i;
             startX = origin[0];
-            endX = c.width - c.padding;
+            endX = c.width - padding.right;
             endY = startY + h;
             path = _.rect([startX, startY], [endX, endY]);
             zebra.push(path);
@@ -314,10 +338,13 @@ Proto.getTitle = function () {
         padding = c.padding,
         x,
         y;
+    if (!c.isTitle) {
+        return ''
+    }
     if (title && _.isObject(title) && title.text) {
         titlePadding = title.padding;
         x = origin[0] + titlePadding[0];
-        y = c.padding + titlePadding[1];
+        y = padding.top + titlePadding[1];
         titles.push({
             x: x,
             y: y,
@@ -353,7 +380,7 @@ Proto.getFocus = function (x, y, type) {
         padding = c.padding,
         reverse = c.reverse,
         ceilWidth = c.ceilWidth,
-        box = this.getBox(),
+        box = c.Box,
         x0 = c.x0,
         y0 = c.y0,
         point = {
@@ -381,12 +408,12 @@ Proto.getFocus = function (x, y, type) {
         case 'line':
             // 坐标系反转没有调试
             if (reverse) {
-                y = Math.floor((y - c.padding) / ceilWidth);
+                y = Math.floor((y - padding.top) / ceilWidth);
                 start = [origin[0], y * ceilWidth];
                 end = [origin[0] + box.width, y * ceilWidth];
                 r.push(_.line(start, end));
             } else {
-                x = Math.round((x - c.padding) / ceilWidth);
+                x = Math.round((x - padding.left) / ceilWidth);
                 start = [origin[0] + x * ceilWidth, origin[1]];
                 end = [origin[0] + x * ceilWidth, origin[1] - box.height];
                 r.push(_.line(start, end));
@@ -394,13 +421,13 @@ Proto.getFocus = function (x, y, type) {
             break;
         case 'rect':
             if (reverse) {
-                y = Math.floor((y - c.padding) / ceilWidth);
+                y = Math.floor((y - padding.top) / ceilWidth);
                 height = origin[1] - box.height;
                 start = [origin[0], height + y * ceilWidth];
                 end = [origin[0] + box.width, height + (y + 1) * ceilWidth];
                 r.push(_.rect(start, end));
             } else {
-                x = Math.floor((x - c.padding) / ceilWidth);
+                x = Math.floor((x - padding.left) / ceilWidth);
                 start = [origin[0] + x * ceilWidth, y0 - box.height];
                 end = [origin[0] + (x + 1) * ceilWidth, y0];
                 r.push(_.rect(start, end));
@@ -413,6 +440,16 @@ Proto.getFocus = function (x, y, type) {
         r = ['M', [x0, y0].join(',')];
     }
     return r.join('');
+};
+
+/**
+ * @description 获取任意指定的信息,包括自动计算的内容
+ * @param
+ * @return result {Boolean}
+ */
+Proto.get = function (name) {
+    var c = this.config;
+    return c[name] || []
 };
 
 /**

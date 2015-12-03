@@ -260,6 +260,35 @@ _.strLength = function () {
 _.strRandom = function () {
     return Math.random().toString(16).slice(2)
 };
+
+/**
+ * @description 计算补白
+ * @param
+ * @return result {Boolean}
+ */
+_.paddingCompute=function(padding){
+    var top,right,bottom,left;
+    padding=''+padding;
+    padding=padding.trim().split(' ');
+    if(padding[0]){
+        top=right=bottom=left=padding[0]*1;
+    }
+    if(padding[1]){
+        right=left=padding[1]*1;
+    }
+    if(padding[2]){
+        bottom=padding[2]*1;
+    }
+    if(padding[3]){
+        left=padding[3]*1;
+    }
+    return {
+        top:top,
+        right:right,
+        bottom:bottom,
+        left:left
+    }
+};
 /**
  * @description 计算超过某个值的数量
  * @param arr   {Array} 要计算的范围

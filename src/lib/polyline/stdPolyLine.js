@@ -11,13 +11,15 @@
 var R = require('../core/raphael');
 var PolyLine = require('./index');
 var stdPolyLine = function (options) {
+    PolyLine.call(this);
+    this.setOptions(options);
     var self = this,
+        config = this.config,
         lineSpace = {},
         create = self.create,
         _R;
     this.name = 'stdPolyLine';
-    this.setOptions(options);
-    this.R = _R = R(options.id, options.width, options.height);
+    this.R = _R = R(config.id, config.width, config.height);
     /**
      * @description 更新图表
      * @param
@@ -37,7 +39,7 @@ var stdPolyLine = function (options) {
             curSerie = _.filter(series, function (val) {
                 return val.name == key
             })[0];
-            var t = create.call(null, curSerie.data);
+            var t = create.call(self, curSerie.data);
             if (curSerie.skip) {
                 item.line.animate({
                     opacity: 0,
@@ -82,18 +84,18 @@ var stdPolyLine = function (options) {
         hover = self.getFocus(0, 0, 'rect');
         // 绘制基本信息
         _.requestAnimFrame.call(window, function () {
-            _R.path(axis).attr(c.strokeAxis);
-            _R.path(tick.tick).attr(c.strokeTick);
-            _R.path(grid).attr(c.strokeGrid)
-            _R.path(zebra).attr(c.strokeZebra);
-            hover = _R.path(hover).attr(c.strokeFocus);
+            axis && _R.path(axis).attr(c.strokeAxis);
+            tick.tick && _R.path(tick.tick).attr(c.strokeTick);
+            grid && _R.path(grid).attr(c.strokeGrid);
+            zebra && _R.path(zebra).attr(c.strokeZebra);
+            hover = hover && _R.path(hover).attr(c.strokeFocus);
             _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(title, function (item) {
+            title && _.each(title, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(legend, function (item) {
+            legend && _.each(legend, function (item) {
                 if (item.type == 'line') {
                     path = _.line([item.x, item.y], [item.x + item.w, item.y]).join('') + _.circle(item.x + item.w / 2, item.y, 3).join('');
                     _R.path(path).attr(item.style).attr('fill', item.style.stroke).data({
@@ -112,15 +114,15 @@ var stdPolyLine = function (options) {
                 }
             });
         });
-        // 绘制数据
+        // // 绘制数据
         _.requestAnimFrame.call(window, function () {
-            _.each(c.series, function (item, i) {
+            c.isData && _.each(c.series, function (item, i) {
                 var tmp = lineSpace[item.name] = {
                     points: _R.set()
                 };
                 r = item.style.point.r;
                 tmp = lineSpace[item.name];
-                var t = create.call(null, item.data);
+                var t = create.call(self, item.data);
                 tmp.line = _R.path(t.startLine).attr({
                     opacity: 0
                 });
@@ -136,20 +138,23 @@ var stdPolyLine = function (options) {
                         opacity: 1
                     }, animation.point.speed, animation.point.type).attr(item.style.point);
                 }).attr(item.style.line);
-
             });
         });
-
+        if (!c.isData || !c.isFocus) {
+            return;
+        }
         // 定义hover效果
-        this.on(_R.canvas, 'mousemove', function (e) {
-            timeID && clearTimeout(timeID);
-            timeID = setTimeout(function () {
-                var x = e.offsetX - c.root.offsetLeft;
-                var y = e.offsetY - c.root.offsetTop;
-                hover.attr('path', self.getFocus(x, y, 'line'));
-            }, 50);
-        });
+        // this.on(_R.canvas, 'mousemove', function (e) {
+        //     timeID && clearTimeout(timeID);
+        //     timeID = setTimeout(function () {
+        //         var x = e.offsetX - c.root.offsetLeft;
+        //         var y = e.offsetY - c.root.offsetTop;
+        //         hover && hover.attr('path', self.getFocus(x, y, 'line'));
+        //     }, 50);
+        // });
     }
 }
-stdPolyLine.prototype = new PolyLine;
+
+stdPolyLine.prototype = Object.create(PolyLine.prototype);
+stdPolyLine.prototype.constructor = stdPolyLine;
 module.exports = stdPolyLine;
