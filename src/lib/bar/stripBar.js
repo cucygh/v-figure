@@ -12,6 +12,7 @@ var R = require('../core/raphael');
 var Bar = require('./index');
 
 var stripBar = function (options) {
+    Bar.call(this);
     var self = this,
         barSpace = {},
         create = self.create,
@@ -80,18 +81,18 @@ var stripBar = function (options) {
         title = self.getTitle();
         hover=self.getFocus(0,0,'rect');
         _.requestAnimFrame.call(window, function () {
-            _R.path(axis).attr(c.strokeAxis);
-            _R.path(tick.tick).attr(c.strokeTick);
-            _R.path(grid).attr(c.strokeGrid);
-            _R.path(zebra).attr(c.strokeZebra);
-            hover = _R.path(hover).attr(c.strokeFocus);
-            _.each(tick.text, function (item) {
+            axis && _R.path(axis).attr(c.strokeAxis);
+            tick && _R.path(tick.tick).attr(c.strokeTick);
+            grid && _R.path(grid).attr(c.strokeGrid)
+            zebra && _R.path(zebra).attr(c.strokeZebra);
+            hover = hover && _R.path(hover).attr(c.strokeFocus);
+            tick && _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(title, function (item) {
+            title && _.each(title, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(legend, function (item) {
+            legend && _.each(legend, function (item) {
                 if (item.type == 'rect') {
                     _R.rect(item.x, item.y, item.w, item.h).attr(item.style).data({
                         name: item.name,
@@ -108,7 +109,7 @@ var stripBar = function (options) {
             _.each(c.series, function (item, i) {
                 tmp = barSpace[item.name] = _R.set();
                 _.each(item.data, function (subselftem, ii) {
-                    tmpBarParam = create.call(null, subselftem, ii, i);
+                    tmpBarParam = create.call(self, subselftem, ii, i);
                     aniParam = {
                         width: tmpBarParam.w
                     };

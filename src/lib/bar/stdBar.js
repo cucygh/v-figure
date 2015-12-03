@@ -11,6 +11,7 @@
 var R = require('../core/raphael');
 var Bar = require('./index');
 var stdBar = function (options) {
+    Bar.call(this);
     var self = this,
         barSpace = {},
         create = self.create,
@@ -80,18 +81,18 @@ var stdBar = function (options) {
         hover = self.getFocus(0, 0, 'rect');
         // 绘制基本信息
         _.requestAnimFrame.call(window, function () {
-            _R.path(axis).attr(c.strokeAxis);
-            _R.path(tick.tick).attr(c.strokeTick);
-            _R.path(grid).attr(c.strokeGrid)
-            _R.path(zebra).attr(c.strokeZebra);
-            hover = _R.path(hover).attr(c.strokeFocus);
-            _.each(tick.text, function (item) {
+            axis && _R.path(axis).attr(c.strokeAxis);
+            tick && _R.path(tick.tick).attr(c.strokeTick);
+            grid && _R.path(grid).attr(c.strokeGrid)
+            zebra && _R.path(zebra).attr(c.strokeZebra);
+            hover = hover && _R.path(hover).attr(c.strokeFocus);
+            tick && _.each(tick.text, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(title, function (item) {
+            title && _.each(title, function (item) {
                 _R.text(item.x, item.y, item.text).attr(item.style);
             });
-            _.each(legend, function (item) {
+            legend && _.each(legend, function (item) {
                 if (item.type == 'rect') {
                     _R.rect(item.x, item.y, item.w, item.h).attr(item.style).data({
                         name: item.name,
@@ -106,10 +107,10 @@ var stdBar = function (options) {
         });
         // 绘制数据
         _.requestAnimFrame.call(window, function () {
-            _.each(c.series, function (item, i) {
+            c.isData && _.each(c.series, function (item, i) {
                 tmp = barSpace[item.name] = _R.set();
                 _.each(item.data, function (subselftem, ii) {
-                    tmpBarParam = create.call(null, subselftem, ii, i);
+                    tmpBarParam = create.call(self, subselftem, ii, i);
                     aniParam = {
                         y: tmpBarParam.y0 - tmpBarParam.h,
                         height: tmpBarParam.h
@@ -125,7 +126,9 @@ var stdBar = function (options) {
                 tmp.attr(item.style);
             });
         });
-
+        if (!c.isFocus) {
+            return
+        }
         // 定义hover效果
         this.on(_R.canvas, 'mousemove', function (e) {
             timeID && clearTimeout(timeID);
@@ -137,5 +140,6 @@ var stdBar = function (options) {
         });
     }
 }
-stdBar.prototype = new Bar;
+stdBar.prototype = Object.create(Bar.prototype);
+stdBar.prototype.constructor = stdBar;
 module.exports = stdBar;

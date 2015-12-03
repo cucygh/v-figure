@@ -72,6 +72,14 @@ var m = new stdBar({
         inOut: 500,
         open: true
     },
-    legend: true
+    legend: true,
+    isxAxis: true,
+    isyAxis: true,
+    isGrid: true,
+    isTitle: true,
+    isLegend: true,
+    isFocus: true,
+    isZebra: true,
+    isData: true
 });
 m.render();
