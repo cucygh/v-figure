@@ -22,48 +22,61 @@ var m = new stdPolyLine({
     },
     xAxis: ['2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010'],
     series: [{
-        data: [102, 70, 10, 20, 80, 120, 10, 34, 23, 11, 79],
+        data: [52, 70, 10, 20, 80, 120, 10, 34, 23, 11],
         style: {
             line: {
                 // 描边
                 stroke: '#1ba9ba',
+                'stroke-dasharray': '.',
+                'stroke-width':2,
                 // 圆角
-                r: 2
+                r: 5
             },
             point: {
                 stroke: '#1ba9ba',
-                r: 2.5,
+                r: 2,
                 fill: '#1ba9ba'
             }
         },
         legend: '测试案例'
-    },{
-        data: [42, 90, 20, 10, 70, 20, 100, 64, 43, 11, 39],
+    }, {
+        data: [42, 90, 20, 10, 70, 20, 100, 64, 43, 11],
         style: {
             line: {
                 // 描边
                 stroke: '#f00',
                 // 圆角
-                r: 2
+                r: 4
             },
             point: {
                 stroke: '#f00',
-                r: 2.5,
+                r: 0,
                 fill: '#f00'
             }
         },
         legend: '测试案例'
     }],
-    yAxis: [10, 30, 50, 60, 90, 200],
     animation: {
         line: {
             speed: 500,
-            type:'<>'
+            type: '<>'
         },
         point: {
             speed: 200,
-            type:'<>'
+            type: '<>'
         }
+    },
+    // 坐标系的样式
+    strokeAxis: {
+        stroke: '#eee',
+        'stroke-linejoin': 'round',
+        'stroke-width': 1.5
+    },
+    // 坐标系的刻度样式
+    strokeTick: {
+        stroke: '#fff',
+        'stroke-linejoin': 'round',
+        'stroke-width': 1
     },
     strokeFocus: {
         stroke: '#1ba9ba',

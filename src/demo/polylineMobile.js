@@ -7,33 +7,35 @@ var c1 = {
     id: 'canvas',
     padding:'50 30 50 0',
     series: [{
-        data: [102, 70, 10, 20, 80, 120, 10, 34, 23, 11, 79],
+        data: [52, 70, 10, 20, 80, 120, 10, 34, 23, 11],
         style: {
             line: {
                 // 描边
                 stroke: '#1ba9ba',
+                'stroke-dasharray': '.',
+                'stroke-width':2,
                 // 圆角
-                r: 2
+                r: 5
             },
             point: {
                 stroke: '#1ba9ba',
-                r: 2.5,
+                r: 2,
                 fill: '#1ba9ba'
             }
         },
         legend: '测试案例'
-    },{
-        data: [302, 170, 40, 200, 180, 20, 10, 74, 83, 41, 79],
+    }, {
+        data: [42, 90, 20, 10, 70, 20, 100, 64, 43, 11],
         style: {
             line: {
                 // 描边
                 stroke: '#f00',
                 // 圆角
-                r: 2
+                r: 4
             },
             point: {
                 stroke: '#f00',
-                r: 2.5,
+                r: 0,
                 fill: '#f00'
             }
         },
@@ -53,8 +55,8 @@ var c1 = {
     isxAxis: true,
     isyAxis: false,
     isGrid: true,
-    isTitle: true,
-    isLegend: true,
+    isTitle: false,
+    isLegend: false,
     isFocus: true,
     isZebra: true,
     isData: true
@@ -64,18 +66,36 @@ var c2 = {
     id: 'yAxis',
     padding:'50 0 50 30',
     series: [{
-        data: [102, 70, 10, 20, 80, 120, 10, 34, 23, 11, 79],
+        data: [52, 70, 10, 20, 80, 120, 10, 34, 23, 11],
         style: {
             line: {
                 // 描边
                 stroke: '#1ba9ba',
+                'stroke-dasharray': '.',
+                'stroke-width':2,
                 // 圆角
-                r: 2
+                r: 5
             },
             point: {
                 stroke: '#1ba9ba',
-                r: 2.5,
+                r: 2,
                 fill: '#1ba9ba'
+            }
+        },
+        legend: '测试案例'
+    }, {
+        data: [42, 90, 20, 10, 70, 20, 100, 64, 43, 11],
+        style: {
+            line: {
+                // 描边
+                stroke: '#f00',
+                // 圆角
+                r: 4
+            },
+            point: {
+                stroke: '#f00',
+                r: 0,
+                fill: '#f00'
             }
         },
         legend: '测试案例'

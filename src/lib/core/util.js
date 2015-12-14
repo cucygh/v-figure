@@ -46,7 +46,7 @@ _.AxisAuto = function (series) {
             max = Math.max(Math.max.apply(null, series[key].data), max);
         }
         if (d && max > 0) {
-            d = tmp = Math.ceil(max / d);
+            d = tmp = Math.ceil(max / d / 10) * 10;
             r.push(d);
             do {
                 d += tmp;
@@ -170,6 +170,46 @@ _.bezier = function (points, a, b) {
 };
 
 /**
+ * @description 弧度圆环
+ * @param
+ * @return result {Boolean}
+ */
+_.radian = function (value, total, mR, R, center) {
+    var alpha = 360 / total * value,
+        a = (90 - alpha) * Math.PI / 180,
+        x = center.x + R * Math.cos(a),
+        y = center.y - R * Math.sin(a),
+        path;
+    if (total == value) {
+        path = [
+            ["M", center.x, center.y - R],
+            ["A", R, R, 0, 1, 1, center.x - 0.01, center.y - R]
+        ];
+    } else {
+        path = [
+            ["M", center.x, center.y - R],
+            ["A", R, R, 0, +(alpha > 180), 1, x, y]
+        ];
+    }
+    return {
+        path: path
+    };
+};
+
+/**
+ * @description 求和
+ * @param
+ * @return result {Boolean}
+ */
+_.sum = function (values) {
+    var r = 0;
+    _.each(values, function (item) {
+        r += item * 1;
+    });
+    return r;
+};
+
+/**
  * @description 判断给定的变量是否为对象
  * @param
  * @return result {Boolean}
@@ -240,6 +280,17 @@ _.extend = function (obj) {
     });
     return obj;
 };
+
+/**
+ * @description 对象类型
+ * @param
+ * @return result {Boolean}
+ */
+_.type = function (o) {
+    var s = Object.prototype.toString.call(o);
+    return s.match(/\[object (.*?)\]/)[1].toLowerCase();
+};
+
 /**
  * @description 计算字符串的长度，区分中英文
  * @param
@@ -248,7 +299,7 @@ _.extend = function (obj) {
 _.strLength = function () {
     var len = 0;
     _.each(arguments, function (item) {
-        len += item.replace(/[^ -~]/g, '**').length
+        len += (item + '').replace(/[^ -~]/g, '**').length
     });
     return len
 };
@@ -266,27 +317,27 @@ _.strRandom = function () {
  * @param
  * @return result {Boolean}
  */
-_.paddingCompute=function(padding){
-    var top,right,bottom,left;
-    padding=''+padding;
-    padding=padding.trim().split(' ');
-    if(padding[0]){
-        top=right=bottom=left=padding[0]*1;
+_.paddingCompute = function (padding) {
+    var top, right, bottom, left;
+    padding = '' + padding;
+    padding = padding.trim().split(' ');
+    if (padding[0]) {
+        top = right = bottom = left = padding[0] * 1;
     }
-    if(padding[1]){
-        right=left=padding[1]*1;
+    if (padding[1]) {
+        right = left = padding[1] * 1;
     }
-    if(padding[2]){
-        bottom=padding[2]*1;
+    if (padding[2]) {
+        bottom = padding[2] * 1;
     }
-    if(padding[3]){
-        left=padding[3]*1;
+    if (padding[3]) {
+        left = padding[3] * 1;
     }
     return {
-        top:top,
-        right:right,
-        bottom:bottom,
-        left:left
+        top: top,
+        right: right,
+        bottom: bottom,
+        left: left
     }
 };
 /**
@@ -329,6 +380,30 @@ _.isInBox = function (point, origin, box) {
         r = true;
     }
     return r;
+};
+
+
+/**
+ * @description 创建tips
+ * @param pos   {Object}    tips位置
+ * @param text  {String}    文本
+ * @param maxLenth  {Number}    单行最大长度
+ * @param size  {Number}    文本的大小
+ * @param arrow  {Number}    箭头的大小
+ * @return result {Boolean}
+ */
+_.makeTips = function (pos, text, maxLenth, size, arrow) {
+    var lineLength = Math.min(_.strLength(text), maxLenth),
+        x = pos.x,
+        y = pos.y,
+        reg = new RegExp('.{' + lineLength + '}', 'g'),
+        txts = (text + '').match(reg),
+        width = size * lineLength * 0.5,
+        height = size * txts.length,
+        arrowWidth = arrow / 2,
+        path;
+    path = ['M', x - width / 2, y - height / 2, 'h', width, 'v', height, 'h', -width / 2 + arrowWidth, 'l', -arrowWidth, arrowWidth, 'l', -arrowWidth, -arrowWidth, 'h', -width / 2 + arrowWidth, 'v', -height, 'z'];
+    return path
 };
 
 

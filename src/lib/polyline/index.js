@@ -126,16 +126,19 @@ Proto.create = function (values) {
         line = [],
         startLine = [],
         points = [],
+        tips = [],
+        tipsBack = [],
+        tipsStyle = c.strokeTips,
         gap, //间隔
         x, //横坐标
         y, //纵坐标
         y00,
         prePoint,
-        rect; //实例
+        rect //实例
     _.each(values, function (item, index) {
         height = (item / max) * box.height; //实例的高度
         y = y0 - height;
-        x = x0 + index * ceilWidth;
+        x = x0 + ceilWidth / 2 + index * ceilWidth;
         if (index == 0) {
             prePoint = {
                 x: x0,
@@ -155,13 +158,24 @@ Proto.create = function (values) {
             x: x,
             y: y
         });
+        tips.push({
+            x: x + tipsStyle.offset.split(' ')[0] * 1,
+            y: y + tipsStyle.offset.split(' ')[1] * 1,
+            text: item
+        });
+        tipsBack.push(_.makeTips({
+            x: x + tipsStyle.offset.split(' ')[0] * 1,
+            y: y + tipsStyle.offset.split(' ')[1] * 1
+        }, item, tipsStyle.lineLength, tipsStyle.baseSize, tipsStyle.arrowSize));
     });
 
     line = _.bezier(points, 0.15, 0.15);
     return {
         startLine: startLine.join(''),
         line: line,
-        points: points
+        points: points,
+        tips: tips,
+        tipsBack: tipsBack.join('')
     }
 }
 

@@ -60,12 +60,23 @@ var options = {
         'stroke-linejoin': 'round',
         'stroke-width': 1
     },
+    // 聚焦样式
     strokeFocus: {
         stroke: '#eee',
         'stroke-linejoin': 'round',
         'stroke-width': 1,
         fill: '#eee',
         opacity: 0.6
+    },
+    // tips样式
+    strokeTips: {
+        stroke: '#666', //描边
+        fill: '#666', //背景色
+        type: 'top center', //对齐方式
+        offset: '0 -15', //偏移量
+        arrowSize: '5', //箭头大小
+        baseSize: '14', //文字大小
+        lineLength: 5 //单行最大长度，超过长度自动换行
     },
     // 画布的内边距，上-右-下-左
     padding: '50 50 50 50',
@@ -95,7 +106,7 @@ var options = {
     // 纵坐标是否展示
     isyAxis: true,
     // 栅格是否显示
-    isGrid:true,
+    isGrid: true,
     // 标题是否显示
     isTitle: true,
     // 图例是否显示
@@ -105,7 +116,9 @@ var options = {
     // 斑马纹路是否显示
     isZebra: true,
     // 数据是否绘制
-    isData:true
+    isData: true,
+    // 是否显示tips
+    isTips: true
 };
 
 module.exports = options;

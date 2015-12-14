@@ -36,7 +36,7 @@ var stdPolyLine = function (options) {
             data;
         self.skip(name, state);
         _.each(lineSpace, function (item, key) {
-            curSerie = _.filter(series, function (val) {
+            var curSerie = _.filter(series, function (val) {
                 return val.name == key
             })[0];
             var t = create.call(self, curSerie.data);
@@ -49,6 +49,12 @@ var stdPolyLine = function (options) {
                     opacity: 0,
                     r: 0
                 }, ani.point.speed / 2, ani.point.type);
+                item.texts.animate({
+                    opacity: 0
+                }, ani.line.speed / 2, ani.line.type);
+                item.backTip && item.backTip.animate({
+                    opacity: 0
+                }, ani.line.speed / 2, ani.line.type);
             } else {
                 item.line.animate({
                     opacity: 1,
@@ -58,6 +64,12 @@ var stdPolyLine = function (options) {
                         opacity: 1,
                         r: curSerie.style.point.r
                     }, ani.point.speed, ani.point.type);
+                    item.texts.animate({
+                        opacity: 1
+                    }, ani.line.speed / 2, ani.line.type);
+                    item.backTip && item.backTip.animate({
+                        opacity: 1
+                    }, ani.line.speed / 2, ani.line.type);
                 });
             }
         });
@@ -118,9 +130,10 @@ var stdPolyLine = function (options) {
         _.requestAnimFrame.call(window, function () {
             c.isData && _.each(c.series, function (item, i) {
                 var tmp = lineSpace[item.name] = {
-                    points: _R.set()
+                    points: _R.set(),
+                    texts: _R.set()
                 };
-                r = item.style.point.r;
+                var r = item.style.point.r;
                 tmp = lineSpace[item.name];
                 var t = create.call(self, item.data);
                 tmp.line = _R.path(t.startLine).attr({
@@ -130,14 +143,26 @@ var stdPolyLine = function (options) {
                     path: t.line,
                     opacity: 1
                 }, animation.line.speed, animation.line.type, function () {
-                    _.each(t.points, function (subItem) {
+                    item.style.point.r && _.each(t.points, function (subItem) {
                         tmp.points.push(_R.circle(subItem.x - r / 2, subItem.y, 0));
                     });
                     tmp.points.animate({
                         r: r,
                         opacity: 1
                     }, animation.point.speed, animation.point.type).attr(item.style.point);
+                    tmp.backTip = item.style.point.r && _R.path(t.tipsBack).attr({
+                        stroke: '#666',
+                        fill: '#666'
+                    });
+                    item.style.point.r && _.each(t.tips, function (subItem) {
+                        tmp.texts.push(_R.text(subItem.x, subItem.y, subItem.text));
+                    });
+                    tmp.texts.attr({
+                        fill: '#fff'
+                    });
+
                 }).attr(item.style.line);
+
             });
         });
         if (!c.isData || !c.isFocus) {
