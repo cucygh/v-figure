@@ -120,6 +120,7 @@ Proto.create = function (values) {
     var c = this.config, //配置参数
         box = c.Box,
         max = c.Max, //坐标的最大值
+        min = c.Min, //坐标的最小值
         ceilWidth = c.ceilWidth, //刻度的单元格
         y0 = c.y0, //实例的起始纵坐标
         x0 = c.x0, //实例的起始横坐标
@@ -136,7 +137,7 @@ Proto.create = function (values) {
         prePoint,
         rect //实例
     _.each(values, function (item, index) {
-        height = (item / max) * box.height; //实例的高度
+        height = ((item - min) / (max - min)) * box.height; //实例的高度
         y = y0 - height;
         x = x0 + ceilWidth / 2 + index * ceilWidth;
         if (index == 0) {

@@ -90,6 +90,10 @@ var options = {
     xAxis: [],
     // 纵坐标
     yAxis: [],
+    // 纵坐标刻度个数
+    yTickLength: 8,
+    // 横坐标刻度个数
+    xTickLength: 8,
     // 动画设置
     animation: {
         duration: 1000,

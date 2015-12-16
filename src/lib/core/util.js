@@ -36,22 +36,23 @@ var nativeForEach = ArrayProto.forEach,
  * @param series 数值类型的二维数组
  * @return r {Array}
  */
-_.AxisAuto = function (series) {
+_.AxisAuto = function (series, tickLength) {
     var r = [];
     if (series && series instanceof Array && series.length) {
-        var d = series[0].data.length,
+        var d = tickLength || 5,
             max = 0,
+            min = 0,
             key, tmp;
+        d++;
         for (key in series) {
             max = Math.max(Math.max.apply(null, series[key].data), max);
+            min = Math.min(Math.min.apply(null, series[key].data), min);
         }
-        if (d && max > 0) {
-            d = tmp = Math.ceil(max / d / 10) * 10;
-            r.push(d);
-            do {
-                d += tmp;
-                r.push(d);
-            } while (d < max)
+        min = min < 0 ? Math.floor(min / 10) * 10 : Math.ceil(min / 10) * 10;
+        tmp = Math.ceil((max - min) / d / 10) * 10;
+        for (var i = 1; i < d; i++) {
+            r.push(min);
+            min += tmp;
         }
     }
     return r

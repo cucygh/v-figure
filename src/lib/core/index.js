@@ -82,7 +82,7 @@ Proto.check = function () {
     _.each(c.series, function (item) {
         item.name = item.name || _.strRandom()
     });
-    // 计算坐标原点
+    // 计算画布原点
     c.origin = [c.padding.left, c.height - c.padding.bottom];
     // 计算实际坐标原点
     c.y0 = c.origin[1] - c.strokeAxis['stroke-width']; //实例的起始纵坐标
@@ -91,7 +91,7 @@ Proto.check = function () {
     if (c.reverse) {
         // 检测横坐标是否已配置，如果没有自动生成
         if (!xAxis.length && c.series) {
-            xAxis = _.AxisAuto(c.series);
+            xAxis = _.AxisAuto(c.series, c.xTickLength);
         } else {
             xAxis = xAxis || [];
         }
@@ -99,12 +99,14 @@ Proto.check = function () {
         c.xAxis = xAxis;
         // 计算坐标的最大值
         c.Max = Math.max.apply(null, xAxis);
+        // 计算坐标的最小值
+        c.Min = Math.min.apply(null, xAxis);
         // 计算刻度单元格
         c.ceilWidth = box.height / yAxis.length;
     } else {
         // 检测纵坐标是否已配置，如果没有自动生成
         if (!yAxis.length && c.series) {
-            yAxis = _.AxisAuto(c.series);
+            yAxis = _.AxisAuto(c.series, c.yTickLength);
         } else {
             yAxis = yAxis || [];
         }
@@ -112,6 +114,8 @@ Proto.check = function () {
         c.yAxis = yAxis;
         // 计算坐标的最大值
         c.Max = Math.max.apply(null, yAxis);
+        // 计算坐标的最小值
+        c.Min = Math.min.apply(null, yAxis);
         // 计算刻度单元格
         c.ceilWidth = box.width / xAxis.length;
     }
@@ -178,7 +182,7 @@ Proto.getTick = function () {
         xAxis = c.xAxis,
         yAxis = c.yAxis,
         xAxisLen = xAxis.length,
-        yAxisLen = yAxis.length,
+        yAxisLen = yAxis.length - 1,
         box = c.Box,
         w = box.width / xAxisLen,
         h = box.height / yAxisLen,
@@ -213,13 +217,13 @@ Proto.getTick = function () {
         }
     }
     if (c.isyAxis && yAxisLen) {
-        for (i = 1; i <= yAxisLen; i++) {
+        for (i = 0; i <= yAxisLen; i++) {
             startY = endY = origin[1] - h * i;
             startX = origin[0];
             texts.push({
                 x: startX - 5,
                 y: reverse ? startY + h / 2 : startY,
-                text: yAxis[i - 1],
+                text: yAxis[i] || '',
                 style: {
                     'text-anchor': 'end'
                 }
@@ -244,7 +248,7 @@ Proto.getGrid = function () {
         xAxis = c.xAxis,
         yAxis = c.yAxis,
         xAxisLen = xAxis.length,
-        yAxisLen = yAxis.length,
+        yAxisLen = yAxis.length - 1,
         box = c.Box,
         w = box.width / xAxisLen,
         h = box.height / yAxisLen,
@@ -286,7 +290,7 @@ Proto.getGridZebra = function () {
         xAxis = c.xAxis,
         yAxis = c.yAxis,
         xAxisLen = xAxis.length,
-        yAxisLen = yAxis.length,
+        yAxisLen = yAxis.length-1,
         box = c.Box,
         w = box.width / xAxisLen,
         h = box.height / yAxisLen,
