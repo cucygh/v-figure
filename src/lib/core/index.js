@@ -223,7 +223,7 @@ Proto.getTick = function () {
             texts.push({
                 x: startX - 5,
                 y: reverse ? startY + h / 2 : startY,
-                text: yAxis[i] || '',
+                text: yAxis[i],
                 style: {
                     'text-anchor': 'end'
                 }

@@ -43,14 +43,14 @@ _.AxisAuto = function (series, tickLength) {
             max = 0,
             min = 0,
             key, tmp;
-        d++;
         for (key in series) {
             max = Math.max(Math.max.apply(null, series[key].data), max);
             min = Math.min(Math.min.apply(null, series[key].data), min);
         }
         min = min < 0 ? Math.floor(min / 10) * 10 : Math.ceil(min / 10) * 10;
-        tmp = Math.ceil((max - min) / d / 10) * 10;
-        for (var i = 1; i < d; i++) {
+
+        tmp = Math.ceil((max - min) / (d - 1) / 10) * 10;
+        for (var i = 0; i < d; i++) {
             r.push(min);
             min += tmp;
         }
