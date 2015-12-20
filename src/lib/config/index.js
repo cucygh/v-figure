@@ -31,7 +31,8 @@ var options = {
     },
     // 画布图例
     legend: {
-        open: true
+        x: 50,
+        y: 50
     },
     // 文本的默认颜色
     color: '#666',

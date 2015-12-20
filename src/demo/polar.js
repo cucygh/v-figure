@@ -1,11 +1,11 @@
 /* [export] */
-var stdPie = require('../lib/pie/stdPie');
-var m = new stdPie({
+var Polar = require('../lib/pie/polar');
+var m = new Polar({
     id: 'canvas',
     width: 800,
     height: 300,
     title: {
-        text: '标准饼图',
+        text: '南丁格尔玫瑰图',
         subText: '测试用例',
         padding: [-30, -35],
         style: {
@@ -22,7 +22,7 @@ var m = new stdPie({
     },
     xAxis: ['2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010'],
     series: [{
-        data: 10,
+        data: [10, 40],
         style: {
             // 填充色
             fill: '#1ba9ba',
@@ -33,7 +33,7 @@ var m = new stdPie({
         },
         legend: '测试案例'
     }, {
-        data: 40,
+        data: [40, 20],
         style: {
             fill: '#f00',
             stroke: '#fff',
@@ -41,7 +41,7 @@ var m = new stdPie({
         },
         legend: '二维码'
     }, {
-        data: 7,
+        data: [7, 30],
         style: {
             fill: '#f45',
             stroke: '#fff',
@@ -49,7 +49,7 @@ var m = new stdPie({
         },
         legend: '健身房'
     }, {
-        data: 30,
+        data: [30, 11],
         style: {
             fill: '#d05',
             stroke: '#fff',
@@ -57,7 +57,7 @@ var m = new stdPie({
         },
         legend: '思考'
     }, {
-        data: 11,
+        data: [11, 9],
         style: {
             fill: '#a45',
             stroke: '#fff',
@@ -75,8 +75,8 @@ var m = new stdPie({
         open: true
     },
     legend: {
-        x:30,
-        y:30
+        x: 30,
+        y: 30
     },
     isxAxis: true,
     isyAxis: true,

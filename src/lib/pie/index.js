@@ -74,7 +74,9 @@ Proto.getData = function () {
 Proto.getDataSum = function () {
     var r = 0;
     _.each(this.config.series, function (item) {
-        r += item.data * 1;
+        if (!item.skip) {
+            r += item.data * 1;
+        }
     });
     return r;
 };
@@ -103,25 +105,22 @@ Proto.computePos = function (radius, outerR) {
 
 /**
  * @description 扇形计算
- * @param   value   {Number}    当前值
- * @param   total   {Number}    所有值的和
  * @param   R       {Number}    半径
  * @param   center  {Object}    圆心
  * @param   values  {Number}    所有数值
  * @return result {Boolean}
  */
-Proto.sector = function (value, start, end, R) {
+Proto.sector = function (start, end, R) {
     var rad = Math.PI / 180,
         cx = this.center.x,
         cy = this.center.y,
-        // R = this.pieR,
         x1 = cx + R * Math.cos(-start * rad),
         x2 = cx + R * Math.cos(-end * rad),
         y1 = cy + R * Math.sin(-start * rad),
         y2 = cy + R * Math.sin(-end * rad),
-        total = this.dataSum,
         path;
-    if (total == value) {
+    
+    if (end - start == 360) {
         path = [
             ["M", cx, cy - R],
             ["A", R, R, 0, 1, 1, cx - 0.01, cy - R],
@@ -179,18 +178,17 @@ Proto.legendChange = function () {
 Proto.getLegend = function () {
     var c = this.config,
         series = c.series,
-        legend = c.legend,
         legends = [],
         len = 0,
         i = 0,
         w = 35,
-        h = 10,
+        h = 20,
         x,
         y;
     if (!c.isLegend) {
         return ''
     }
-    if (legend && series.length) {
+    if (series.length) {
         _.each(series, function (item) {
             if (item.legend) {
                 len += _.strLength(item.legend);
@@ -199,30 +197,33 @@ Proto.getLegend = function () {
         });
     }
     //  计算起始字符的坐标
-    x = c.width / 2 - (len * 5 + i * (w + 5)) / 2;
-    y = c.padding.top + c.title.padding[1];
+    x = c.legend.x;
+    y = c.legend.y;
     _.each(series, function (item) {
-        // legends.push({
-        //     x: x,
-        //     y: y + h / 2,
-        //     w: w,
-        //     type: 'line',
-        //     name: item.name,
-        //     style: item.style.line
-        // });
-        // x += w;
-        // legends.push({
-        //     x: x,
-        //     y: y + h / 2,
-        //     text: item.legend,
-        //     type: 'text',
-        //     name: item.name,
-        //     style: {
-        //         fill: item.style.line.stroke,
-        //         'text-anchor': 'start'
-        //     }
-        // });
-        // x += _.strLength(item.legend) * 5 + 5
+        legends.push({
+            x: x,
+            y: y + h,
+            path: _.arcRing(10, 20, 125, {
+                x: x,
+                y: y
+            }),
+            type: 'path',
+            name: item.name,
+            style: item.style
+        });
+        legends.push({
+            x: x + 15,
+            y: y - 14,
+            text: item.legend,
+            type: 'text',
+            name: item.name,
+            style: {
+                fill: item.style.fill,
+                'text-anchor': 'start'
+            }
+        });
+        y += h;
+
     });
     return legends
 };
@@ -233,8 +234,7 @@ Proto.getLegend = function () {
  * @return result {Array}
  */
 Proto.create = function (value, start, end) {
-    var arc = [value, start, end],
-        R = this.pieR,
+    var R = this.pieR,
         pos, line, txtPos, lineX;
     end = start + (end - start) / 2;
     pos = Proto.computePos.call(this, end, 15);
@@ -245,7 +245,6 @@ Proto.create = function (value, start, end) {
         y: pos.outerY
     }
     return {
-        arc: arc,
         line: line,
         txtPos: txtPos
     }
