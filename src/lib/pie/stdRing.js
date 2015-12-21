@@ -1,17 +1,17 @@
 /**
  * @ignore  =====================================================================================
- * @fileoverview 标准折线图
+ * @fileoverview 标准环形图
  * @see wiki
  * @author  guohui.yin@qunar.com
  * @version 1.0.0
- * @ignore  created in 2015-11-27
+ * @ignore  created in 2015-12-20
  * @ignore  depend Library Raphael
  * @ignore  =====================================================================================
  */
 var R = require('../core/raphael');
 var _ = require('../core/util');
 var Pie = require('./index');
-var Polar = function (options) {
+var stdRing = function (options) {
     Pie.call(this);
     this.setOptions(options);
     this.init();
@@ -19,31 +19,10 @@ var Polar = function (options) {
         config = this.config,
         lineSpace = {},
         _R;
-    this.name = 'Polar';
+    this.name = 'stdRing';
     this.R = _R = R(config.id, config.width, config.height);
-    this.rMax = 0;
-    this.dataSum = '';
-    this.getDataSum = function () {
-        var r = 0;
-        _.each(this.config.series, function (item) {
-            if (!item.skip) {
-                r += item.data[0] * 1;
-            }
-        });
-        return r;
-    };
-    this.getRMax = function () {
-        var max = 0;
-        _.each(config.series, function (item) {
-            if (!item.skip) {
-                max = Math.max(item.data[1], max);
-            }
-        });
-        this.rMax = max;
-        return max
-    };
-    _R.customAttributes.arc = function (start, end, R) {
-        return self.sector.call(self, start, end, R);
+    _R.customAttributes.arc = function (inR, outR, start, end) {
+        return self.arc.call(self, inR, outR, start, end);
     };
     /**
      * @description 更新图表
@@ -57,6 +36,8 @@ var Polar = function (options) {
             c = self.config,
             ani = c.animation,
             series = c.series,
+            inner = c.innerWrapper,
+            outer = c.outerWrapper,
             start,
             end,
             r,
@@ -64,7 +45,6 @@ var Polar = function (options) {
             data;
         self.skip(name, state);
         self.dataSum = self.getDataSum();
-        self.getRMax();
         self.radius = 0;
         _.each(lineSpace, function (item, key) {
             curSerie = _.filter(series, function (val) {
@@ -73,29 +53,18 @@ var Polar = function (options) {
             if (curSerie.skip) {
                 item.arc.animate({
                     opacity: 0,
-                    arc: [0, 0, 0]
-                }, ani.duration / 2, ani.type);
-                item.text.animate({
-                    opacity: 0
+                    arc: [inner.r + 15, outer.r - 15, 0, 0]
                 }, ani.duration / 2, ani.type);
             } else {
                 start = self.radius;
-                end = 360 / self.dataSum * curSerie.data[0] + start;
-                r = curSerie.data[1] / self.rMax * self.pieR;
-                var txtPos = self.create.call(self, curSerie.data[0], start, end).txtPos;
+                end = 360 / self.dataSum * curSerie.data + start;
                 item.arc.animate({
                     opacity: 1,
-                    arc: [start, end, r]
+                    arc: [inner.r + 15, outer.r - 15, start, end]
                 }, ani.duration, ani.type).data({
                     start: start,
-                    end: end,
-                    r: r
+                    end: end
                 });
-                item.text.animate({
-                    opacity: 1,
-                    x: txtPos.x,
-                    y: txtPos.y
-                }, ani.animation, ani.type);
                 self.radius = end;
             }
         });
@@ -142,36 +111,20 @@ var Polar = function (options) {
         });
         // // 绘制数据
         _.requestAnimFrame.call(window, function () {
-            self.getRMax();
-            self.dataSum = self.getDataSum();
             c.isData && _.each(c.series, function (item, i) {
                 var tmp = lineSpace[item.name] = {},
-                    data = item.data[0],
-                    r = item.data[1] / self.rMax * self.pieR,
+                    data = item.data,
                     start = self.radius,
                     end = 360 / self.dataSum * data + start;
-                var t = self.create.call(self, data, start, end);
-                tmp.text = _R.text(t.txtPos.x, t.txtPos.y, item.legend).attr({
-                    opacity: 0
-                });
-                tmp.arc = _R.path('').attr('arc', [0, 0, 0, r]).attr(item.style).animate({
-                    arc: [start, end, r]
-                }, 500, '<>', function () {
-                    tmp.text.animate({
-                        opacity: 1
-                    }, '200', '<>');
-                }).hover(function () {
-                    var data = this.data();
-                    this.attr('arc', [data.start, data.end, data.r + 3]);
+                tmp.arc = _R.path('').attr('arc', [inner.r + 15, outer.r - 15, 0, 0]).attr(item.style).animate({
+                    arc: [inner.r + 15, outer.r - 15, start, end]
+                }, 500, '<>').hover(function () {
                     this.attr('opacity', 0.8);
                 }, function () {
-                    var data = this.data();
-                    this.attr('arc', [data.start, data.end, data.r]);
                     this.attr('opacity', 1);
                 }).data({
                     start: start,
-                    end: end,
-                    r: r
+                    end: end
                 });
                 self.radius = end;
             });
@@ -193,6 +146,6 @@ var Polar = function (options) {
     }
 }
 
-Polar.prototype = Object.create(Pie.prototype);
-Polar.prototype.constructor = Polar;
-module.exports = Polar;
+stdRing.prototype = Object.create(Pie.prototype);
+stdRing.prototype.constructor = stdRing;
+module.exports = stdRing;

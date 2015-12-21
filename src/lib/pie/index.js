@@ -119,7 +119,7 @@ Proto.sector = function (start, end, R) {
         y1 = cy + R * Math.sin(-start * rad),
         y2 = cy + R * Math.sin(-end * rad),
         path;
-    
+
     if (end - start == 360) {
         path = [
             ["M", cx, cy - R],
@@ -133,6 +133,52 @@ Proto.sector = function (start, end, R) {
             ["A", R, R, 0, +(end - start > 180), 0, x2, y2, 'z']
         ];
     }
+    return {
+        path: path
+    };
+};
+
+
+/**
+ * @description 弧度绘制
+ * @param
+ * @return result {Boolean}
+ */
+Proto.arc = function (inR, outR, start, end) {
+    var rad = Math.PI / 180,
+        center = this.center,
+        cx = center.x,
+        cy = center.y,
+        radis1 = -start,
+        radis2 = -end,
+        x1 = cx + inR * Math.cos(radis1 * rad),
+        x2 = cx + outR * Math.cos(radis1 * rad),
+        x1End = cx + inR * Math.cos(radis2 * rad),
+        x2End = cx + outR * Math.cos(radis2 * rad),
+        y1 = cy + inR * Math.sin(radis1 * rad),
+        y1End = cy + inR * Math.sin(radis2 * rad),
+        y2 = cy + outR * Math.sin(radis1 * rad),
+        y2End = cy + outR * Math.sin(radis2 * rad),
+        path;
+    if (end - start == 360) {
+        path = [
+            ["M", cx - outR, cy],
+            ["A", outR, outR, 0, 1, 0, cx + outR, cy],
+            ["A", outR, outR, 0, 0, 0, cx - outR, cy],
+            ["M", cx - inR, cy],
+            ["A", inR, inR, 0, 0, 1, cx + inR, cy],
+            ["A", inR, inR, 0, 0, 1, cx - inR, cy],
+            ["Z"]
+        ];
+    } else {
+        path = [
+            ["M", x2, y2],
+            ["A", outR, outR, 0, +(end - start > 180), 0, x2End, y2End],
+            ["L", x1End, y1End],
+            ["A", inR, inR, 0, +(end - start > 180), 1, x1, y1, 'z']
+        ];
+    }
+
     return {
         path: path
     };

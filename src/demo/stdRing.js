@@ -1,11 +1,11 @@
 /* [export] */
-var Polar = require('../lib/pie/polar');
-var m = new Polar({
+var stdRing = require('../lib/pie/stdRing.js');
+var m = new stdRing({
     id: 'canvas',
     width: 800,
     height: 300,
     title: {
-        text: '南丁格尔玫瑰图',
+        text: '标准环形图',
         subText: '测试用例',
         padding: [-30, -35],
         style: {
@@ -22,7 +22,7 @@ var m = new Polar({
     },
     xAxis: ['2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010'],
     series: [{
-        data: [10, 40],
+        data: 10,
         style: {
             // 填充色
             fill: '#1ba9ba',
@@ -33,7 +33,7 @@ var m = new Polar({
         },
         legend: '测试案例'
     }, {
-        data: [40, 20],
+        data: 40,
         style: {
             fill: '#f00',
             stroke: '#fff',
@@ -41,7 +41,7 @@ var m = new Polar({
         },
         legend: '二维码'
     }, {
-        data: [7, 30],
+        data: 7,
         style: {
             fill: '#f45',
             stroke: '#fff',
@@ -49,7 +49,7 @@ var m = new Polar({
         },
         legend: '健身房'
     }, {
-        data: [30, 11],
+        data: 30,
         style: {
             fill: '#d05',
             stroke: '#fff',
@@ -57,7 +57,7 @@ var m = new Polar({
         },
         legend: '思考'
     }, {
-        data: [11, 9],
+        data: 11,
         style: {
             fill: '#a45',
             stroke: '#fff',
@@ -82,18 +82,18 @@ var m = new Polar({
         show: true,
         r: 105,
         style: {
-            stroke: '#eee'
+            stroke: '#eee',
+            fill: '#fff'
         }
     },
     innerWrapper: {
         show: true,
-        r: 10,
+        r: 40,
         style: {
             stroke: '#eee',
             fill: '#fff'
         }
     },
-    InnerWrapper: true,
     isxAxis: true,
     isyAxis: true,
     isGrid: true,
