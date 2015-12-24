@@ -71,7 +71,6 @@ var m = new stripBar({
         inOut: 500,
         open: true
     },
-    legend: true,
     reverse: true
 });
 m.render();
