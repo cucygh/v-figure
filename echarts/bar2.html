@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>全国迁徙</title>
+    <style media="screen">
+        #canvas {
+            width: 800px;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvas"></div>
+    <script src="../bower_components/echarts/build/dist/echarts-all.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                data: ['利润', '支出', '收入']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {
+                        show: true
+                    },
+                    dataView: {
+                        show: true,
+                        readOnly: false
+                    },
+                    magicType: {
+                        show: true,
+                        type: ['line', 'bar']
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            calculable: true,
+            xAxis: [{
+                type: 'value'
+            }],
+            yAxis: [{
+                type: 'category',
+                axisTick: {
+                    show: false
+                },
+                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            }],
+            series: [{
+                name: '利润',
+                type: 'bar',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'inside'
+                        }
+                    }
+                },
+                data: [200, 170, 240, 244, 200, 220, 210]
+            }, {
+                name: '收入',
+                type: 'bar',
+                stack: '总量',
+                barWidth: 5,
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true
+                        }
+                    }
+                },
+                data: [320, 302, 341, 374, 390, 450, 420]
+            }, {
+                name: '支出',
+                type: 'bar',
+                stack: '总量',
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true,
+                            position: 'left'
+                        }
+                    }
+                },
+                data: [-120, -132, -101, -134, -190, -230, -210]
+            }]
+        };
+
+
+        var myChart = echarts.init(document.getElementById('canvas'));
+        myChart.setOption(option);
+    </script>
+</body>
+
+</html>
